@@ -1,12 +1,9 @@
-#
-# msctools: my collection of composing and performing tools in python
-#
-# © 2023 Marco Buongiorno Nardelli
-#
+#!/usr/bin/python
 
 addr = None 
 data = None
 write = False
 beat = None
 stop_threads = False
-	
+sleep = 0
+TICK = 0.15

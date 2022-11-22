@@ -9,13 +9,14 @@
 import time
 
 from .base import *
+import msctools.cfg as cfg
 
 def trackList(session):
 	num_tracks = session.num()
 	tracks = []
 	for t in range(num_tracks):
 		tracks.append(Track(t))
-	time.sleep(0.01)
+	time.sleep(cfg.TICK)
 	return(tracks)
 
 def clipList(session,tracks):
@@ -29,7 +30,7 @@ def clipList(session,tracks):
 		for i in range(num_clips[n]):
 			clp.append(Clip(n,i))
 		clips.append(clp)
-	time.sleep(0.1)
+	time.sleep(cfg.TICK)
 	return(clips)
 
 def deviceList(session,tracks):
@@ -43,7 +44,7 @@ def deviceList(session,tracks):
 		for i in range(num_devices[n]):
 			dvc.append(Device(n,i))
 		devices.append(dvc)
-	time.sleep(0.1)
+	time.sleep(cfg.TICK)
 	return(devices)
 
 def setSession():

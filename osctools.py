@@ -8,7 +8,7 @@ from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import ThreadingOSCUDPServer
 
-import cfg
+import msctools.cfg as cfg
 
 class client:
 	def __init__(self,address,values,host="127.0.0.1",port=11000):
@@ -22,7 +22,6 @@ class client:
 	
 def server(ip,port):
 	def handler(address, *args):
-#		global addr, data, write, beat
 		if address != '/live/song/beat': 
 			cfg.data = args
 			cfg.addr = address

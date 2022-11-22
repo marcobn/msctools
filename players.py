@@ -11,7 +11,7 @@ import networkx as nx
 from .networks import *
 from .osctools import client
 
-import cfg
+import msctools.cfg as cfg
 
 def player(clips,track,mode='network',external=None,delay=0):
 	''' 
