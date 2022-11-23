@@ -13,7 +13,7 @@ from .osctools import client
 
 import msctools.cfg as cfg
 
-def player(clips,track,mode='network',external=None,delay=0):
+def player(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
 	''' 
 	Play clips in sequence
 	mode = "network"    : sequence defined by the eulerian path on a network
@@ -27,7 +27,10 @@ def player(clips,track,mode='network',external=None,delay=0):
 		if cfg.stop_threads:
 			break
 		if mode == 'network':
-			Gx = nx.barabasi_albert_graph(len(clips[track]),2)
+			# network models can be found here: 
+			# https://networkx.org/documentation/stable/reference/generators.html
+			mynetx = getattr(nx,nxmodel)
+			Gx = mynetx(*args)
 			chino = chinese_postman(Gx,None,verbose=False)
 			seq = [chino[0][0]]
 			for s in range(1,len(chino)):
