@@ -17,6 +17,9 @@ def player(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_al
 	''' 
 	Play clips in sequence
 	mode = "network"    : sequence defined by the eulerian path on a network
+						: network models can be found here: 
+						: https://networkx.org/documentation/stable/reference/generators.html
+						: arguments are passed through *args
 	mode = "sequential" : plays the clips in descending order
 	mode = "random"     : plays clips in random order
 	mode = "external"   : plays clip with a user supplied sequence
@@ -27,8 +30,6 @@ def player(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_al
 		if cfg.stop_threads:
 			break
 		if mode == 'network':
-			# network models can be found here: 
-			# https://networkx.org/documentation/stable/reference/generators.html
 			mynetx = getattr(nx,nxmodel)
 			Gx = mynetx(*args)
 			chino = chinese_postman(Gx,None,verbose=False)
