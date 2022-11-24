@@ -62,8 +62,10 @@ class Track:
 		client("/live/track/set/arm",[self.n,0],self.host,self.port).send()
 		
 	def volume(self,vol=db2value(0.0),mode='set'):
-		if mode == 'set':
+		if mode == 'setdb':
 			client("/live/track/set/volume",[self.n,db2value(vol)],self.host,self.port).send()
+		if mode == 'set':
+			client("/live/track/set/volume",[self.n,vol],self.host,self.port).send()
 		if mode == 'get':
 			client("/live/track/get/volume",[self.n],self.host,self.port).send()
 			time.sleep(cfg.TICK)
@@ -79,6 +81,20 @@ class Track:
 		
 	def panning(self,pan=0,mode='set'):
 		client("/live/track/set/panning",[self.n,pan],self.host,self.port).send()
+		
+	def arrangement(self,mode='name'):
+		if mode == 'name':
+			client("/live/track/get/arrangement_clips/name",[self.n],self.host,self.port).send()
+			time.sleep(cfg.TICK)
+			return(cfg.data)
+		if mode == 'length':
+			client("/live/track/get/arrangement_clips/length",[self.n],self.host,self.port).send()
+			time.sleep(cfg.TICK)
+			return(cfg.data)
+		if mode == 'start_time':
+			client("/live/track/get/arrangement_clips/start_time",[self.n],self.host,self.port).send()
+			time.sleep(cfg.TICK)
+			return(cfg.data)
 		
 	def nclips(self):
 		client("/live/track/get/clips/name",[self.n],self.host,self.port).send()

@@ -52,4 +52,5 @@ def setSession():
 	tracks = trackList(session)
 	clips = clipList(session,tracks)
 	devices = deviceList(session,tracks)
+	time.sleep(cfg.TICK)
 	return(session,tracks,devices,clips)
