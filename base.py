@@ -129,6 +129,7 @@ class Clip:
 		
 	def fpath(self):
 		client("/live/clip/get/file_path",[self.n,self.c],self.host,self.port).send()
+		time.sleep(cfg.TICK)
 		return(cfg.data[0])
 	
 	def looping(self,mode='off'):
