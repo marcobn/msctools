@@ -26,6 +26,11 @@ class Song:
 	def stop(self):
 		client("/live/song/stop_playing",[],self.host,self.port).send()
 		
+	def session_record(self):
+		client("/live/song/get/session_record",[],self.host,self.port).send()
+		time.sleep(cfg.TICK)
+		return(cfg.data[0])
+	
 	def test(self):
 		client("/live/test",[],port=11000).send()
 		

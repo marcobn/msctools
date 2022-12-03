@@ -10,6 +10,8 @@ import numpy as np
 from .converters import *
 import msctools.cfg as cfg
 
+# Dynamics
+
 def multiEnv(tracklist,T,omega=None):
 
 	# general function that builds the envelope series for each individual channel
@@ -55,7 +57,8 @@ def multiEnv(tracklist,T,omega=None):
 			tr.volume(env[n][i],mode='set')
 		time.sleep(cfg.CLOCK)
 
-def crescendo(track,Vini,Vend,T):
+def crescendo(tracklist,Vini,Vend,T):
+	assert type(tracklist) == list, 'must be a list of tracks'
 	# input volumes in dB, time in seconds
 	# set initial volume (decimal)
 	Vini = db2value(Vini)
@@ -68,10 +71,13 @@ def crescendo(track,Vini,Vend,T):
 	for t in range(nt):
 		time.sleep(cfg.CLOCK)
 		V += dV
-		track.volume(V,mode='set')
-	track.volume(Vend,mode='set')
+		for tr in tracklist:
+			tr.volume(V,mode='set')
+	for tr in tracklist:
+		tr.volume(Vend,mode='set')
 		
-def decrescendo(track,Vini,Vend,T):
+def decrescendo(tracklist,Vini,Vend,T):
+	assert type(tracklist) == list, 'must be a list of tracks'
 	# input volumes in dB, time in seconds
 	# set initial volume (decimal)
 	Vini = db2value(Vini)
@@ -84,10 +90,60 @@ def decrescendo(track,Vini,Vend,T):
 	for t in range(nt):
 		time.sleep(cfg.CLOCK)
 		V -= dV
-		track.volume(V,mode='set')
-	track.volume(Vend,mode='set')
+		for tr in tracklist:
+			tr.volume(V,mode='set')
+	for tr in tracklist:
+		tr.volume(Vend,mode='set')
+		
+# Position (generic device)
+		
+def lines(device,posA,posB,T):
+	# Draws a line between posA and posB in time T
+	# to be used in source placement
+	assert type(posA) == list, 'posA is a point in 3D space'
+	assert type(posB) == list, 'posA is a point in 3D space'
+	nt = int(T/cfg.CLOCK)
+	X = np.linspace(posA[0],posB[0],nt)
+	Y = np.linspace(posA[1],posB[1],nt)
+	Z = np.linspace(posA[2],posB[2],nt)
+	for i in range(nt):
+		device.position([X[i],Y[i],Z[i]],mode='set')
+		time.sleep(cfg.CLOCK)
 
+def circles(device,aziA,aziB,T):
+	assert type(aziA) == int, 'aziA is an angle in a circle'
+	assert type(aziB) == int, 'aziB is an angle in a circle'
+	narc = np.abs(aziB-aziA)
+	for i in range(aziA,aziB+1):
+		x = 0.5+np.cos(-i*np.pi/180+np.pi/2)/2
+		y = 0.5+np.sin(-i*np.pi/180+np.pi/2)/2
+		z = 0.0
+		time.sleep (T/narc)
+		device.position([x,y,z],mode='set')
 		
-		
-	
-	
+# SpatGris control envelopes
+
+def circlesCar(device,aziA,aziB,radius,T):
+	narc = np.abs(aziB-aziA)
+	sign = np.sign(aziB-aziA)
+	nt = int(T/cfg.CLOCK)
+	ddeg = narc/nt
+	d = aziA
+	for i in range(nt+1):
+		x = radius*np.cos(-d*np.pi/180+np.pi/2)
+		y = radius*np.sin(-d*np.pi/180+np.pi/2)
+		z = 0.0
+		device.car(x,y,z,0.0,0.0)
+		d += sign*ddeg
+		time.sleep (cfg.CLOCK)
+
+def circlesDeg(device,aziA,aziB,T):
+	narc = np.abs(aziB-aziA)
+	sign = np.sign(aziB-aziA)
+	nt = int(T/cfg.CLOCK)
+	ddeg = narc/nt
+	d = aziA
+	for i in range(nt+1):
+		device.deg(d,0.0,1.0,0.0,0.0)
+		d += sign*ddeg
+		time.sleep(cfg.CLOCK)

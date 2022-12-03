@@ -80,7 +80,7 @@ class Dolby:
 			client("/live/device/set/parameter/value",[self.n,self.d,4,val],self.host,self.port).send()
 			time.sleep(cfg.TICK)
 	
-	def position(self,X=None,Y=None,Z=None,mode='get'):
+	def position(self,pos=[None,None,None],mode='get'):
 		if mode == 'get':
 			client("/live/device/get/parameter/value",[self.n,self.d,1],self.host,self.port).send()
 			time.sleep(cfg.TICK)
@@ -93,6 +93,9 @@ class Dolby:
 			Z = cfg.data[0]
 			return(X,Y,Z)
 		if mode == 'set':
+			X = pos[0]
+			Y = pos[1]
+			Z = pos[2]
 			client("/live/device/set/parameter/value",[self.n,self.d,1,X],self.host,self.port).send()
 			client("/live/device/set/parameter/value",[self.n,self.d,2,Y],self.host,self.port).send()
 			client("/live/device/set/parameter/value",[self.n,self.d,3,Z],self.host,self.port).send()
@@ -111,7 +114,7 @@ class Dolby:
 			time.sleep(cfg.TICK)
 			
 			
-class Spat:
+class SpatControl:
 	
 	def __init__(self,track,device,controls=None,host="127.0.0.1",port=11000):
 		self.n = track
@@ -156,7 +159,7 @@ class Spat:
 			client("/live/device/set/parameter/value",[self.n,self.d,8,val],self.host,self.port).send()
 			time.sleep(cfg.TICK)
 			
-	def position(self,X=None,Y=None,Z=None,mode='get'):
+	def position(self,pos=[None,None,None],mode='get'):
 		if mode == 'get':
 			client("/live/device/get/parameter/value",[self.n,self.d,1],self.host,self.port).send()
 			time.sleep(cfg.TICK)
@@ -169,6 +172,9 @@ class Spat:
 			Z = cfg.data[0]
 			return(X,Y,Z)
 		if mode == 'set':
+			X = pos[0]
+			Y = pos[1]
+			Z = pos[2]
 			client("/live/device/set/parameter/value",[self.n,self.d,1,X],self.host,self.port).send()
 			client("/live/device/set/parameter/value",[self.n,self.d,2,Y],self.host,self.port).send()
 			client("/live/device/set/parameter/value",[self.n,self.d,3,Z],self.host,self.port).send()
@@ -185,3 +191,28 @@ class Spat:
 		if mode == 'set':
 			client("/live/device/set/parameter/value",[self.n,self.d,n,val],self.host,self.port).send()
 			time.sleep(cfg.TICK)
+			
+class Spat:
+
+	def __init__(self,source,host="127.0.0.1",port=18032):
+		self.s = source
+		self.port = port
+		self.host = host
+	'''
+	Direct messaging to SpatGris
+	'''
+	
+	def deg(self,azi,ele,radius,azispan,elespan):
+		# set position using polar coordinates in degrees
+		client("/spat/serv",['deg',self.s,azi,ele,radius,azispan,elespan],self.host,self.port).send()
+	
+	def pol(self,azi,ele,radius,azispan,elespan):
+		# set position using polar coordinates in radians
+		client("/spat/serv",['pol',self.s,azi,ele,radius,azispan,elespan],self.host,self.port).send()
+	
+	def car(self,x,y,z,azispan,elespan):
+		# set position using cartesian coordinates
+		client("/spat/serv",['car',self.s,x,y,z,azispan,elespan],self.host,self.port).send()
+		
+	def clr(self):
+		client("/spat/serv",['clr',self.s],self.host,self.port).send()

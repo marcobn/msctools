@@ -66,3 +66,36 @@ def scale(val, src, dst):
 	Scale the given value from the scale of src to the scale of dst.
 	"""
 	return ((val - src[0]) / (src[1]-src[0])) * (dst[1]-dst[0]) + dst[0]
+
+def s2c(r,theta,phi):
+	# spherical to cartesian conversion
+	# theta = azimuth in deg (counterclockwise ordering from 0)
+	# phi = elevation in deg (from 0 elevation)
+	x = r * np.cos(np.radians(theta)) * np.sin(np.radians(90-phi))
+	y = r * np.sin(np.radians(theta)) * np.sin(np.radians(90-phi))
+	z = r * np.cos(np.radians(90-phi))
+	return(x,y,z)
+
+def lines(device,posA,posB,T):
+	# Draws a line between posA and posB in time T
+	# to be used in source placement
+	assert type(posA) == list, 'posA is a point in 3D space'
+	assert type(posB) == list, 'posA is a point in 3D space'
+	nt = int(T/cfg.CLOCK)
+	X = np.linspace(posA[0],posB[0],nt)
+	Y = np.linspace(posA[1],posB[1],nt)
+	Z = np.linspace(posA[2],posB[2],nt)
+	for i in range(nt):
+		device.position([X[i],Y[i],Z[i]],mode='set')
+		time.sleep(cfg.CLOCK)
+
+def circles(device,aziA,aziB,T):
+	assert type(aziA) == int, 'aziA is an angle in a circle'
+	assert type(aziB) == int, 'aziB is an angle in a circle'
+	narc = np.abs(aziB-aziA)
+	for i in range(aziA,aziB+1):
+		x = 0.5+np.cos(-i*np.pi/180+np.pi/2)/2
+		y = 0.5+np.sin(-i*np.pi/180+np.pi/2)/2
+		z = 0.0
+		time.sleep (T/narc)
+		device.position([x,y,z],mode='set')
