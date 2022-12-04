@@ -115,15 +115,19 @@ def lines(device,posA,posB,T):
 			device.car(X[i],Y[i],Z[i],0.0,0.0)
 		time.sleep(cfg.CLOCK)
 
-def circles(device,aziA,aziB,T):
-	assert type(aziA) == int, 'aziA is an angle in a circle'
-	assert type(aziB) == int, 'aziB is an angle in a circle'
+def circles(device,aziA,aziB,radius,T):
 	narc = np.abs(aziB-aziA)
-	for i in range(aziA,aziB+1):
-		x = 0.5+np.cos(-i*np.pi/180+np.pi/2)/2
-		y = 0.5+np.sin(-i*np.pi/180+np.pi/2)/2
+	sign = np.sign(aziB-aziA)
+	nt = int(T/cfg.CLOCK)
+	ddeg = narc/nt
+	d = aziA
+	for i in range(nt+1)):
+		x = radius*np.cos(-i*np.pi/180+np.pi/2)
+		y = radius*np.sin(-i*np.pi/180+np.pi/2)/2
 		z = 0.0
-		time.sleep (T/narc)
+		device.position([x,y,z],mode='set')
+		d += sign*ddeg
+		time.sleep (cfg.CLOCK)
 		device.position([x,y,z],mode='set')
 		
 # SpatGris control envelopes
