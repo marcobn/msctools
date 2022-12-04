@@ -107,7 +107,11 @@ def lines(device,posA,posB,T):
 	Y = np.linspace(posA[1],posB[1],nt)
 	Z = np.linspace(posA[2],posB[2],nt)
 	for i in range(nt):
-		device.position([X[i],Y[i],Z[i]],mode='set')
+		try:
+			device.position([X[i],Y[i],Z[i]],mode='set')
+		except:
+			# for SpatGris
+			device.car(X[i],Y[i],Z[i],0.0,0.0)
 		time.sleep(cfg.CLOCK)
 
 def circles(device,aziA,aziB,T):
