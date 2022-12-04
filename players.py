@@ -39,9 +39,10 @@ def player(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_al
 				if cfg.stop_threads:
 					break
 		elif mode == 'sequential':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
+			print(seq)
 		elif mode == 'random':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
 			np.random.shuffle(seq)
 		elif mode == 'external':
 			seq = external
@@ -79,9 +80,9 @@ def playerA(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_a
 				if cfg.stop_A:
 					break
 		elif mode == 'sequential':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
 		elif mode == 'random':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
 			np.random.shuffle(seq)
 		elif mode == 'external':
 			seq = external
@@ -119,9 +120,9 @@ def playerB(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_a
 				if cfg.stop_B:
 					break
 		elif mode == 'sequential':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
 		elif mode == 'random':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
 			np.random.shuffle(seq)
 		elif mode == 'external':
 			seq = external
@@ -159,9 +160,9 @@ def playerC(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_a
 				if cfg.stop_C:
 					break
 		elif mode == 'sequential':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
 		elif mode == 'random':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
 			np.random.shuffle(seq)
 		elif mode == 'external':
 			seq = external
@@ -199,9 +200,9 @@ def playerD(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_a
 				if cfg.stop_D:
 					break
 		elif mode == 'sequential':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
 		elif mode == 'random':
-			seq = np.linspace(0,len(dur)-1,len(clips[track]),dtype=int)
+			seq = np.linspace(0,len(clips[track])-1,len(clips[track]),dtype=int).tolist()
 			np.random.shuffle(seq)
 		elif mode == 'external':
 			seq = external

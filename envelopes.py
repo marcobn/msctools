@@ -8,6 +8,7 @@ import time
 import numpy as np
 
 from .converters import *
+from .devices import Spat
 import msctools.cfg as cfg
 
 # Dynamics
@@ -127,27 +128,31 @@ def circles(device,aziA,aziB,T):
 		
 # SpatGris control envelopes
 
-def circlesCar(device,aziA,aziB,radius,T):
+def circlesCar(source,aziA,aziB,radius,T):
 	narc = np.abs(aziB-aziA)
 	sign = np.sign(aziB-aziA)
 	nt = int(T/cfg.CLOCK)
 	ddeg = narc/nt
 	d = aziA
 	for i in range(nt+1):
+		if cfg.stop_source[source]:
+			break
 		x = radius*np.cos(-d*np.pi/180+np.pi/2)
 		y = radius*np.sin(-d*np.pi/180+np.pi/2)
 		z = 0.0
-		device.car(x,y,z,0.0,0.0)
+		Spat(source).car(x,y,z,0.0,0.0)
 		d += sign*ddeg
 		time.sleep (cfg.CLOCK)
 
-def circlesDeg(device,aziA,aziB,T):
+def circlesDeg(source,aziA,aziB,T):
 	narc = np.abs(aziB-aziA)
 	sign = np.sign(aziB-aziA)
 	nt = int(T/cfg.CLOCK)
 	ddeg = narc/nt
 	d = aziA
 	for i in range(nt+1):
-		device.deg(d,0.0,1.0,0.0,0.0)
+		if cfg.stop_source[source]:
+			break
+		Spat(source).deg(d,0.0,1.0,0.0,0.0)
 		d += sign*ddeg
 		time.sleep(cfg.CLOCK)
