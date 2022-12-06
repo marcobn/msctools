@@ -121,7 +121,7 @@ def circles(device,aziA,aziB,radius,T):
 	nt = int(T/cfg.CLOCK)
 	ddeg = narc/nt
 	d = aziA
-	for i in range(nt+1)):
+	for i in range(nt+1):
 		x = radius*np.cos(-i*np.pi/180+np.pi/2)
 		y = radius*np.sin(-i*np.pi/180+np.pi/2)/2
 		z = 0.0
