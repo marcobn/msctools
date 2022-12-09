@@ -12,7 +12,7 @@ from .base import *
 import msctools.cfg as cfg
 
 def trackList(session):
-	num_tracks = session.num()
+	num_tracks = session.num_tracks()
 	tracks = []
 	for t in range(num_tracks):
 		tracks.append(Track(t))
@@ -20,7 +20,7 @@ def trackList(session):
 	return(tracks)
 
 def clipList(session,tracks):
-	num_tracks = session.num()
+	num_tracks = session.num_tracks()
 	num_clips = []
 	for n in range(num_tracks):
 		num_clips.append(tracks[n].nclips())
@@ -34,7 +34,7 @@ def clipList(session,tracks):
 	return(clips)
 
 def deviceList(session,tracks):
-	num_tracks = session.num()
+	num_tracks = session.num_tracks()
 	num_devices = []
 	for n in range(num_tracks):
 		num_devices.append(tracks[n].ndevices())

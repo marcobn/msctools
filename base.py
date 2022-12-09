@@ -16,7 +16,7 @@ import msctools.cfg as cfg
 
 class Song:
 	
-	def __init__(self,host="127.0.0.1",port=11000):
+	def __init__(self,host=cfg.HOST,port=cfg.PORT):
 		self.port = port
 		self.host = host
 		
@@ -26,16 +26,34 @@ class Song:
 	def stop(self):
 		client("/live/song/stop_playing",[],self.host,self.port).send()
 		
+	def stop_clips(self):
+		client("/live/song/stop_all_clips",[],self.host,self.port).send()
+		
 	def session_record(self):
 		client("/live/song/get/session_record",[],self.host,self.port).send()
 		time.sleep(cfg.TICK)
 		return(cfg.data[0])
 	
 	def test(self):
-		client("/live/test",[],port=11000).send()
+		client("/live/test",[],self.host,self.port).send()
 		
-	def num(self):
+	def num_tracks(self):
 		client("/live/song/get/num_tracks",[],self.host,self.port).send()
+		time.sleep(cfg.TICK)
+		return(cfg.data[0])
+	
+	def num_scenes(self):
+		client("/live/song/get/num_scenes",[],self.host,self.port).send()
+		time.sleep(cfg.TICK)
+		return(cfg.data[0])
+	
+	def create_scene(self,index):
+		client("/live/song/create_scene",[index],self.host,self.port).send()
+		time.sleep(cfg.TICK)
+		return(cfg.data[0])
+
+	def delete_scene(self,index):
+		client("/live/song/delete_scene",[index],self.host,self.port).send()
 		time.sleep(cfg.TICK)
 		return(cfg.data[0])
 	
@@ -55,7 +73,7 @@ class Song:
 		
 class Track:
 	
-	def __init__(self,track,host="127.0.0.1",port=11000):
+	def __init__(self,track,host=cfg.HOST,port=cfg.PORT):
 		self.n = track
 		self.port = port
 		self.host = host
@@ -118,7 +136,7 @@ class Track:
 	
 class Clip:
 	
-	def __init__(self,track,clip,host="127.0.0.1",port=11000):
+	def __init__(self,track,clip,host=cfg.HOST,port=cfg.PORT):
 		self.n = track
 		self.c = clip
 		self.port = port
@@ -131,6 +149,9 @@ class Clip:
 			client("/live/clip/get/name",[self.n,self.c],self.host,self.port).send()
 			time.sleep(cfg.TICK)
 			return(cfg.data)
+		
+	def fire(self):
+		client("/live/clip/fire",[self.n,self.c],self.host,self.port).send()
 		
 	def fpath(self):
 		client("/live/clip/get/file_path",[self.n,self.c],self.host,self.port).send()
@@ -157,9 +178,26 @@ class Clip:
 		nsamples = wav.size/wav.shape[1]
 		return(nsamples/sr)
 	
+class ClipSlot:
+	
+	def __init__(self,track,clip_slot,controls=None,host=cfg.HOST,port=cfg.PORT):
+		self.n = track
+		self.c = clip_slot
+		self.port = port
+		self.host = host
+	
+	def fire(self):
+		client("/live/clip_slot/fire",[self.n,self.c],self.host,self.port).send()
+		
+	def create(self,length):
+		client("/live/clip_slot/create_clip",[self.n,self.c,length],self.host,self.port).send()
+
+	def delete(self):
+		client("/live/clip_slot/delete_clip",[self.n,self.c,length],self.host,self.port).send()
+	
 class Device:
 	
-	def __init__(self,track,device,controls=None,host="127.0.0.1",port=11000):
+	def __init__(self,track,device,controls=None,host=cfg.HOST,port=cfg.PORT):
 		self.n = track
 		self.d = device
 		self.cntr = controls

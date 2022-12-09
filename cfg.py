@@ -14,3 +14,5 @@ stop_source = [False,False,False,False,False,False,False,False,False,False,False
 sleep = 0
 TICK = 0.15
 CLOCK = TICK/10
+PORT = 11000
+HOST = "127.0.0.1"

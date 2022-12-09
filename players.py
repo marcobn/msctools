@@ -213,3 +213,9 @@ def playerD(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_a
 			time.sleep(clips[track][seq[n]].dur()+np.random.rand()*cfg.sleep)
 			if cfg.stop_D:
 				break
+
+def playScene(scene,session,delay=0):
+	# play a scene from the session view
+	time.sleep(delay)
+	for n in range(session.num_tracks()):
+		client("/live/clip_slot/fire",[n,scene],cfg.HOST,cfg.PORT).send()
