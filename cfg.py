@@ -1,17 +1,29 @@
-#!/usr/bin/python
+#
+# msctools: my collection of composing and performing tools in python
+#
+# © 2023 Marco Buongiorno Nardelli
+#
 
 addr = None 
 data = None
 write = False
 beat = None
-stop_threads = False
+tempo = 60.0
 stop_A = False
 stop_B = False
 stop_C = False
 stop_D = False
+stop_score = False
 stop_source = [False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,\
                False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False]
-sleep = 0
+sleepA = 0
+sleepB = 0
+sleepC = 0
+sleepD = 0
+sleep_score = 0
+beatA = 1
+beatD = 1
+beat_score = 1
 TICK = 0.15
 CLOCK = TICK/10
 PORT = 11000
