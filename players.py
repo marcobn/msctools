@@ -9,11 +9,12 @@ import numpy as np
 import networkx as nx
 
 from .networks import *
+from .devices import Spat
 from .osctools import client
 
 import msctools.cfg as cfg
 
-def playerA(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
+def playerA(clips,track,delay=0,source=False,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
 	''' 
 	Play clips in sequence waiting for next clip in following mode
 	mode = "network"    : sequence defined by the eulerian path on a network
@@ -48,12 +49,16 @@ def playerA(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_a
 		else:
 			print('mode not implemented')
 		for n in range(len(seq)):
-			client("/live/clip/fire",[track,seq[n]],port=11000).send()
+			# set position of Spat source if needed
+			if source == True:
+				X = 2.0*np.random.rand() - 1.0
+				Spat(track+1).car(X,1.0,0.0,*args)
+			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
 			time.sleep(np.abs(clips[track][seq[n]].dur()+(2*np.random.rand()-1)*cfg.sleepA))
 			if cfg.stop_A:
 				break
 
-def playerB(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
+def playerB(clips,track,delay=0,source=False,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
 	''' 
 	Play clips in sequence at set time intervals quantizaed according to tempo in bpm: 1/n.
 	mode = "network"    : sequence defined by the eulerian path on a network
@@ -88,7 +93,11 @@ def playerB(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_a
 		else:
 			print('mode not implemented')
 		for n in range(len(seq)):
-			client("/live/clip/fire",[track,seq[n]],port=11000).send()
+			# set position of Spat source if needed
+			if source == True:
+				X = 2.0*np.random.rand() - 1.0
+				Spat(track+1).car(X,1.0,0.0,*args)
+			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
 			time.sleep(np.abs(60.0/cfg.tempo*cfg.beatA+(2*np.random.rand()-1)*cfg.sleepB))
 			if cfg.stop_B:
 				break
@@ -128,7 +137,7 @@ def playerC(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_a
 		else:
 			print('mode not implemented')
 		for n in range(len(seq)):
-			client("/live/clip/fire",[track,seq[n]],port=11000).send()
+			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
 			time.sleep(np.abs(clips[track][seq[n]].dur()+(2*np.random.rand()-1)*cfg.sleepC))
 			if cfg.stop_C:
 				break
@@ -168,7 +177,7 @@ def playerD(clips,track,delay=0,mode='network',external=None,nxmodel='barabasi_a
 		else:
 			print('mode not implemented')
 		for n in range(len(seq)):
-			client("/live/clip/fire",[track,seq[n]],port=11000).send()
+			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
 			time.sleep(np.abs(60.0/cfg.tempo*cfg.beatD+(2*np.random.rand()-1)*cfg.sleepD))
 			if cfg.stop_D:
 				break

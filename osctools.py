@@ -35,3 +35,14 @@ def server(ip,port):
 	server = ThreadingOSCUDPServer((ip, port), dispatcher)
 	server.serve_forever()  # Blocks forever
 	
+def serverSpat(ip,port):
+	def handler(address, *args):
+		cfg.source_data = args
+		cfg.source_addr = address
+		if cfg.write:
+			print(f"{address}: {args}")
+			
+	dispatcher = Dispatcher()
+	dispatcher.map("/source/*", handler)
+	server = ThreadingOSCUDPServer((ip, port), dispatcher)
+	server.serve_forever()  # Blocks forever

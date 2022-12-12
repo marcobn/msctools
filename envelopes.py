@@ -98,7 +98,7 @@ def decrescendo(tracklist,Vini,Vend,T):
 		
 # Position (generic device)
 		
-def lines(device,posA,posB,T):
+def lines(source,device,posA,posB,T,cycle=1):
 	# Draws a line between posA and posB in time T
 	# to be used in source placement
 	assert type(posA) == list, 'posA is a point in 3D space'
@@ -107,13 +107,15 @@ def lines(device,posA,posB,T):
 	X = np.linspace(posA[0],posB[0],nt)
 	Y = np.linspace(posA[1],posB[1],nt)
 	Z = np.linspace(posA[2],posB[2],nt)
-	for i in range(nt):
-		try:
-			device.position([X[i],Y[i],Z[i]],mode='set')
-		except:
-			# for SpatGris
-			device.car(X[i],Y[i],Z[i],0.0,0.0)
-		time.sleep(cfg.CLOCK)
+	for c in range(cycle):
+		for i in range(nt):
+			try:
+				device.position([X[i*(-1)**c],Y[i*(-1)**c],Z[i*(-1)**c]],mode='set')
+			except:
+				# for SpatGris
+				device.car(X[i*(-1)**c],Y[i*(-1)**c],Z[i*(-1)**c],0.0,0.0)
+			time.sleep(cfg.CLOCK)
+		if cfg.stop_source[source]: break
 
 def circles(device,aziA,aziB,radius,T):
 	narc = np.abs(aziB-aziA)
@@ -130,7 +132,7 @@ def circles(device,aziA,aziB,radius,T):
 		time.sleep (cfg.CLOCK)
 		device.position([x,y,z],mode='set')
 		
-# SpatGris control envelopes
+# SpatGris control source position/envelopes
 
 def circlesCar(source,aziA,aziB,radius,T):
 	narc = np.abs(aziB-aziA)
