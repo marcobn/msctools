@@ -115,7 +115,7 @@ def lines(source,device,posA,posB,T,cycle=1):
 				# for SpatGris
 				device.car(X[i*(-1)**c],Y[i*(-1)**c],Z[i*(-1)**c],0.0,0.0)
 			time.sleep(cfg.CLOCK)
-		if cfg.stop_source[source]: break
+			if cfg.stop_source[source]: break
 
 def circles(device,aziA,aziB,radius,T):
 	narc = np.abs(aziB-aziA)
