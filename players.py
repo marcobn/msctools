@@ -50,7 +50,7 @@ def playerA(clips,track,delay=0,source=False,mode='network',external=None,nxmode
 			print('mode not implemented')
 		for n in range(len(seq)):
 			# set position of Spat source if needed
-			if source == True:
+			if source:
 				X = 2.0*np.random.rand() - 1.0
 				Spat(track+1).car(X,1.0,0.0,*args)
 			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
@@ -94,7 +94,7 @@ def playerB(clips,track,delay=0,source=False,mode='network',external=None,nxmode
 			print('mode not implemented')
 		for n in range(len(seq)):
 			# set position of Spat source if needed
-			if source == True:
+			if source:
 				X = 2.0*np.random.rand() - 1.0
 				Spat(track+1).car(X,1.0,0.0,*args)
 			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
