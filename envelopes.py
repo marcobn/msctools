@@ -98,7 +98,7 @@ def decrescendo(tracklist,Vini,Vend,T):
 		
 # Position (generic device)
 		
-def lines(source,device,posA,posB,T,cycle=1):
+def lines(source,device,posA,posB,T,cycle=1,*args):
 	# Draws a line between posA and posB in time T
 	# to be used in source placement
 	assert type(posA) == list, 'posA is a point in 3D space'
@@ -113,7 +113,7 @@ def lines(source,device,posA,posB,T,cycle=1):
 				device.position([X[i*(-1)**c],Y[i*(-1)**c],Z[i*(-1)**c]],mode='set')
 			except:
 				# for SpatGris
-				device.car(X[i*(-1)**c],Y[i*(-1)**c],Z[i*(-1)**c],0.0,0.0)
+				device.car(X[i*(-1)**c],Y[i*(-1)**c],Z[i*(-1)**c],*args)
 			time.sleep(cfg.CLOCK)
 			if cfg.stop_source[source]: break
 
@@ -134,7 +134,7 @@ def circles(device,aziA,aziB,radius,T):
 		
 # SpatGris control source position/envelopes
 
-def circlesCar(source,aziA,aziB,radius,T):
+def circlesCar(source,aziA,aziB,radius,T,*args):
 	narc = np.abs(aziB-aziA)
 	sign = np.sign(aziB-aziA)
 	nt = int(T/cfg.CLOCK)
@@ -146,7 +146,7 @@ def circlesCar(source,aziA,aziB,radius,T):
 		x = radius*np.cos(-d*np.pi/180+np.pi/2)
 		y = radius*np.sin(-d*np.pi/180+np.pi/2)
 		z = 0.0
-		Spat(source).car(x,y,z,0.0,0.0)
+		Spat(source).car(x,y,z,*args)
 		d += sign*ddeg
 		time.sleep (cfg.CLOCK)
 
@@ -159,6 +159,6 @@ def circlesDeg(source,aziA,aziB,T):
 	for i in range(nt+1):
 		if cfg.stop_source[source]:
 			break
-		Spat(source).deg(d,0.0,1.0,0.0,0.0)
+		Spat(source).deg(d,0.0,1.0,*args)
 		d += sign*ddeg
 		time.sleep(cfg.CLOCK)
