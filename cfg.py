@@ -17,7 +17,7 @@ NTRACK = 128
 stop = [False]*NTRACK
 stop_source = [False]*NTRACK
 sleep = [0]*NTRACK
-beat = [1]*NTRAK
+beat = [1]*NTRACK
 
 TICK = 0.15
 CLOCK = TICK/10
