@@ -14,7 +14,7 @@ from .osctools import client
 
 import msctools.cfg as cfg
 
-def playerA(clips,track,delay=0,source=False,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
+def playerA(clips,track,delay=0.0,source=False,azi=0.0,ele=0.0,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
 	''' 
 	Play clips in sequence waiting for next clip in following mode
 	mode = "network"    : sequence defined by the eulerian path on a network
@@ -52,13 +52,13 @@ def playerA(clips,track,delay=0,source=False,mode='network',external=None,nxmode
 			# set position of Spat source if needed
 			if source:
 				X = 2.0*np.random.rand() - 1.0
-				Spat(track+1).car(X,1.0,0.0,*args)
+				Spat(track+1).car(X,1.0,0.0,azi,ele)
 			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
-			time.sleep(np.abs(clips[track][seq[n]].dur()+(2*np.random.rand()-1)*cfg.sleep[track]))
+			time.sleep(np.abs(clips[track][seq[n]].dur()+np.random.rand()*cfg.sleep[track]))
 			if cfg.stop[track]:
 				break
 
-def playerB(clips,track,delay=0,source=False,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
+def playerB(clips,track,delay=0.0,source=False,azi=0.0,ele=0.0,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
 	''' 
 	Play clips in sequence at set time intervals quantizaed according to tempo in bpm: 1/n.
 	mode = "network"    : sequence defined by the eulerian path on a network
@@ -96,9 +96,9 @@ def playerB(clips,track,delay=0,source=False,mode='network',external=None,nxmode
 			# set position of Spat source if needed
 			if source:
 				X = 2.0*np.random.rand() - 1.0
-				Spat(track+1).car(X,1.0,0.0,*args)
+				Spat(track+1).car(X,1.0,0.0,azi,ele)
 			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
-			time.sleep(np.abs(60.0/cfg.tempo*cfg.beat[track]+(2*np.random.rand()-1)*cfg.sleep[track]))
+			time.sleep(np.abs(60.0/cfg.tempo*cfg.beat[track]+np.random.rand()*cfg.sleep[track]))
 			if cfg.stop[track]:
 				break
 						

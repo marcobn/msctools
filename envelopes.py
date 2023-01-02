@@ -65,7 +65,8 @@ def crescendo(tracklist,Vini,Vend,T):
 	Vini = db2value(Vini)
 	Vend = db2value(Vend)
 	assert Vini <= Vend
-	track.volume(Vini,mode='set')
+	for tr in tracklist:
+		tr.volume(Vini,mode='set')
 	nt = int(T/cfg.CLOCK)
 	dV = (Vend - Vini)/nt
 	V = Vini
@@ -104,6 +105,8 @@ def lines(source,device,posA,posB,T,cycle=1,*args):
 	assert type(posA) == list, 'posA is a point in 3D space'
 	assert type(posB) == list, 'posA is a point in 3D space'
 	nt = int(T/cfg.CLOCK)
+	# Formula to correct for the delay in the Spat OSC messaging server (empirical!!!)
+	wait = (T-0.0028*nt)/nt
 	X = np.linspace(posA[0],posB[0],nt)
 	Y = np.linspace(posA[1],posB[1],nt)
 	Z = np.linspace(posA[2],posB[2],nt)
@@ -111,10 +114,43 @@ def lines(source,device,posA,posB,T,cycle=1,*args):
 		for i in range(nt):
 			try:
 				device.position([X[i*(-1)**c],Y[i*(-1)**c],Z[i*(-1)**c]],mode='set')
+				time.sleep(cfg.CLOCK)
 			except:
 				# for SpatGris
 				device.car(X[i*(-1)**c],Y[i*(-1)**c],Z[i*(-1)**c],*args)
-			time.sleep(cfg.CLOCK)
+				time.sleep(wait)
+			if cfg.stop_source[source]: break
+			
+def lineCycle(source,device,pos0,T,cycle=1,dir='r',*args):
+	# Spans the whole range [-1.0,1.0] starting from an arbitrary position in time T
+	# to be used in source placement - dir='r' starts movement in r direction ('l' for left)
+	# version for MEET - change only X coordinate
+	if dir == 'r':
+		c0 = 0
+	else:
+		c0 = 1
+	nt = int(T/cfg.CLOCK)
+	nt0 = int((pos0+1)/2*nt)
+	# Formula to correct for the delay in the Spat OSC messaging server (empirical!!!)
+	wait = (T-0.0028*nt)/nt
+	X = np.linspace(-1,1,nt)
+	Y = np.linspace(1,1,nt)
+	Z = np.linspace(0,0,nt)
+	if dir == 'r':
+		for i in range(nt0,nt):
+			device.car(X[i*(-1)**c0],Y[i*(-1)**c0],Z[i*(-1)**c0],*args)
+			time.sleep(wait)
+			if cfg.stop_source[source]: break
+	else:
+		for i in range(nt0)[::-1]:
+			device.car(X[i],Y[i],Z[i],*args)
+			time.sleep(wait)
+			if cfg.stop_source[source]: break
+	if c0 == 1: cycle += 1
+	for c in range((c0+1),cycle):
+		for i in range(nt):
+			device.car(X[i*(-1)**c],Y[i*(-1)**c],Z[i*(-1)**c],*args)
+			time.sleep(wait)
 			if cfg.stop_source[source]: break
 
 def circles(device,aziA,aziB,radius,T):

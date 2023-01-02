@@ -28,7 +28,7 @@ def server(ip,port):
 			if cfg.write:
 				print(f"{address}: {args}")
 		if address == '/live/song/beat':
-			cfg.beat = args
+			cfg.livebeat = args
 			
 	dispatcher = Dispatcher()
 	dispatcher.map("/live/*", handler)

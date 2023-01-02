@@ -4,20 +4,21 @@
 # © 2023 Marco Buongiorno Nardelli
 #
 
+import numpy as np
+
 addr = None 
 data = None
 source_addr = None 
 source_data = None
 
 write = False
-beat = None
 tempo = 60.0
 
 NTRACK = 128
-stop = [False]*NTRACK
-stop_source = [False]*NTRACK
-sleep = [0]*NTRACK
-beat = [1]*NTRACK
+stop = np.array([False]*NTRACK)
+stop_source = np.array([False]*NTRACK)
+sleep = np.array([0.0]*NTRACK)
+beat = np.array([1.0]*NTRACK)
 
 TICK = 0.15
 CLOCK = TICK/10
