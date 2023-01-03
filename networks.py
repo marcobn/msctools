@@ -8,6 +8,22 @@ import itertools
 import numpy as np
 import networkx as nx
 
+import re, sys, os, time
+
+import music21 as m21
+
+from musicntwrk import musicntwrk
+from musicntwrk.musicntwrk import PCSet
+from musicntwrk.plotting.drawNetwork import drawNetwork
+mk = musicntwrk.musicntwrk(TET=12)
+
+from musicntwrk.harmony.harmonicDesign import harmonicDesign
+from musicntwrk.harmony.networkHarmonyGen import networkHarmonyGen
+from musicntwrk.harmony.rhythmicDesign import rhythmicDesign
+from musicntwrk.harmony.scoreDesign import scoreDesign
+
+from .utils import importSoundfiles
+
 def chinese_postman(graph,starting_node=None,verbose=False):
 	
 	def get_shortest_distance(graph, pairs, edge_weight_name):
@@ -48,3 +64,204 @@ def chinese_postman(graph,starting_node=None,verbose=False):
 	multi_graph = create_new_graph(graph, odd_matching_edges)
 	
 	return(create_eulerian_circuit(multi_graph, starting_node))
+
+def BachBAChorale(chorale,dirpaths,random=False):
+	
+	# Chorale reconstruction from J.S. Bach with BA networks of pitch and rhythm
+	# Uses the music21 corpus
+	
+	assert len(dirpaths) == 4
+	
+	bachChorale = m21.corpus.parse(chorale).corpusFilepath
+	seq,chords,_ = mk.dictionary(space='score',scorefil=bachChorale,music21=True,show=False)
+	bnodes,bedges,_,_,_,_,_ = mk.network(space='score',seq=seq,ntx=True,general=True,distance='euclidean',
+										grphtype='directed')
+	
+	euseq,_,_ = harmonicDesign(mk,len(bnodes),bnodes,bedges,nedges=2,seed=10,reverse=True,display=False,write=False)
+	
+	# make all chords of cardinality 4
+	ch = np.zeros((len(euseq),4))
+	for i,c in enumerate(euseq):
+		if len(c) == 4:
+			ch[i,:] = np.array(c)
+		elif len(c) == 3:
+			ch[i,:3] = np.array(c)
+			ch[i,3] = c[0]
+		elif len(c) == 2:
+			ch[i,:2] = np.array(c)
+			ch[i,2] = c[0]
+			ch[i,3] = c[1]
+		else:
+			ch[i,:] = c
+	if random:
+		c = []
+		for i in range(len(euseq)):
+			c.append(np.random.permutation(np.asarray(ch[i])))
+		c = np.array(c)
+	else:
+		c = ch
+	
+	dictrtm,_ = mk.dictionary(space='rhythmP',N=6,Nc=3,REF='e')
+	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
+							distance='euclidean',prob=1,write=False)
+	
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=None,reverse=True)
+
+	part1 = m21.stream.Stream()
+	part1.insert(0, m21.meter.TimeSignature('4/4'))
+	for i in range(c.shape[0]):
+		nota = m21.note.Note(c[i,0])
+		nota.duration = durations[i%len(durations)]
+		nota.octave = np.random.choice([3,4,5])
+		part1.append(nota)
+		
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=None,reverse=False)
+	
+	part2 = m21.stream.Stream()
+	part2.insert(0, m21.meter.TimeSignature('4/4'))
+	for i in range(c.shape[0]):
+		nota = m21.note.Note(c[i,1])
+		nota.duration = durations[i%len(durations)]
+		nota.octave = np.random.choice([3,4,5])
+		part2.append(nota)
+		
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=None,reverse=True)
+	
+	part3 = m21.stream.Stream()
+	part3.insert(0, m21.meter.TimeSignature('4/4'))
+	for i in range(c.shape[0]):
+		nota = m21.note.Note(c[i,2])
+		nota.duration = durations[i%len(durations)]
+		nota.octave = np.random.choice([3,4,5])
+		part3.append(nota)
+	
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=None,reverse=False)
+	
+	part4 = m21.stream.Stream()
+	part4.insert(0, m21.meter.TimeSignature('4/4'))
+	for i in range(c.shape[0]):
+		nota = m21.note.Note(c[i,2])
+		nota.duration = durations[i%len(durations)]
+		nota.octave = np.random.choice([3,4,5])
+		part4.append(nota)
+
+	S = []
+	for s in part1.recurse().notes:
+		S.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+	A = []
+	for s in part2.recurse().notes:
+		A.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+	T = []
+	for s in part3.recurse().notes:
+		T.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+	B = []
+	for s in part4.recurse().notes:
+		B.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		
+	files = sorted(importSoundfiles(dirpath=dirpaths[0],filepath='*.wav'))
+
+	idx = []
+	fil = []
+	for i,f in enumerate(files):
+		idx.append(i)
+		fil.append(f.split('/')[-1].split('.')[0][2:])
+	
+	Sdict = dict(zip(fil,idx))
+	
+	files = sorted(importSoundfiles(dirpath=dirpaths[1],filepath='*.wav'))
+	
+	idx = []
+	fil = []
+	for i,f in enumerate(files):
+		idx.append(i)
+		fil.append(f.split('/')[-1].split('.')[0][2:])
+	
+	Adict = dict(zip(fil,idx))
+	
+	files = sorted(importSoundfiles(dirpath=dirpaths[2],filepath='*.wav'))
+	
+	idx = []
+	fil = []
+	for i,f in enumerate(files):
+		idx.append(i)
+		fil.append(f.split('/')[-1].split('.')[0][2:])
+	
+	Tdict = dict(zip(fil,idx))
+	
+	files = sorted(importSoundfiles(dirpath=dirpaths[3],filepath='*.wav'))
+	
+	idx = []
+	fil = []
+	for i,f in enumerate(files):
+		idx.append(i)
+		fil.append(f.split('/')[-1].split('.')[0][2:])
+	
+	Bdict = dict(zip(fil,idx))
+	
+	Sseq = []
+	Sdur = []
+	Aseq = []
+	Adur = []
+	Tseq = []
+	Tdur = []
+	Bseq = []
+	Bdur = []
+	for n in S:
+		try:
+			Sseq.append(Sdict[n[0]])
+			Sdur.append(n[1])
+		except:
+			if n[0][-1] == '5':
+				new = n[0][:-1]+str(int(n[0][-1])-1)
+			elif n[0][-1] == '3':
+				new = n[0][:-1]+str(int(n[0][-1])+1)
+			else:
+				new = n[0]
+			Sseq.append(Sdict[new])
+			Sdur.append(n[1])
+	for n in A:
+		try:
+			Aseq.append(Adict[n[0]])
+			Adur.append(n[1])
+		except:
+			if n[0][-1] == '5':
+				new = n[0][:-1]+str(int(n[0][-1])-1)
+			elif n[0][-1] == '3':
+				new = n[0][:-1]+str(int(n[0][-1])+1)
+			else:
+				new = n[0]
+			Aseq.append(Adict[new])
+			Adur.append(n[1])
+	for n in T:
+		try:
+			Tseq.append(Tdict[n[0]])
+			Tdur.append(n[1])
+		except:
+			if n[0][-1] == '5':
+				new = n[0][:-1]+str(int(n[0][-1])-1)
+			elif n[0][-1] == '3':
+				new = n[0][:-1]+str(int(n[0][-1])+1)
+			else:
+				new = n[0]
+			Tseq.append(Sdict[new])
+			Tdur.append(n[1])
+	for n in B:
+		try:
+			Bseq.append(Bdict[n[0]])
+			Bdur.append(n[1])
+		except:
+			if n[0][-1] == '5':
+				new = n[0][:-1]+str(int(n[0][-1])-1)
+			elif n[0][-1] == '3':
+				new = n[0][:-1]+str(int(n[0][-1])+1)
+			else:
+				new = n[0]
+			Bseq.append(Sdict[new])
+			Bdur.append(n[1])
+		
+	soprano = [Sseq,Sdur]
+	alto = [Aseq,Adur]
+	tenor = [Tseq,Tdur]
+	bass = [Bseq,Bdur]
+	
+	return([soprano,alto,tenor,bass])
