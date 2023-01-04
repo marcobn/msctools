@@ -117,7 +117,9 @@ def scorePlayer(clips,track,score,delay=0):
 		dur = score[1]
 		for n in range(len(seq)):
 			client("/live/clip/fire",[track,seq[n]],port=11000).send()
-			time.sleep(np.abs(60.0/cfg.tempo*cfg.beat[track]*dur[n]+(2*np.random.rand()-1)*cfg.sleep[track]))
+			tsleep = np.max([np.abs(60.0/cfg.tempo*cfg.beat[track]*dur[n]+(2*np.random.rand()-1)*cfg.sleep[track]),
+							 np.abs(clips[track][seq[n]].dur()+np.random.rand()*cfg.sleep[track])])
+			time.sleep(tsleep)
 			if cfg.stop[track]:
 				break
 

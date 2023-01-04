@@ -58,7 +58,7 @@ def multiEnv(tracklist,T,omega=None):
 			tr.volume(env[n][i],mode='set')
 		time.sleep(cfg.CLOCK)
 
-def crescendo(tracklist,Vini,Vend,T):
+def crescendo(tracks,tracklist,Vini,Vend,T):
 	assert type(tracklist) == list, 'must be a list of tracks'
 	# input volumes in dB, time in seconds
 	# set initial volume (decimal)
@@ -66,7 +66,7 @@ def crescendo(tracklist,Vini,Vend,T):
 	Vend = db2value(Vend)
 	assert Vini <= Vend
 	for tr in tracklist:
-		tr.volume(Vini,mode='set')
+		tracks[tr].volume(Vini,mode='set')
 	nt = int(T/cfg.CLOCK)
 	dV = (Vend - Vini)/nt
 	V = Vini
@@ -74,18 +74,19 @@ def crescendo(tracklist,Vini,Vend,T):
 		time.sleep(cfg.CLOCK)
 		V += dV
 		for tr in tracklist:
-			tr.volume(V,mode='set')
+			tracks[tr].volume(V,mode='set')
 	for tr in tracklist:
-		tr.volume(Vend,mode='set')
+		tracks[tr].volume(Vend,mode='set')
 		
-def decrescendo(tracklist,Vini,Vend,T):
+def decrescendo(tracks,tracklist,Vini,Vend,T):
 	assert type(tracklist) == list, 'must be a list of tracks'
 	# input volumes in dB, time in seconds
 	# set initial volume (decimal)
 	Vini = db2value(Vini)
 	Vend = db2value(Vend)
 	assert Vini >= Vend
-	track.volume(Vini,mode='set')
+	for tr in tracklist:
+		tracks[tr].volume(Vini,mode='set')
 	nt = int(T/cfg.CLOCK)
 	dV = (Vini - Vend)/nt
 	V = Vini
@@ -93,9 +94,17 @@ def decrescendo(tracklist,Vini,Vend,T):
 		time.sleep(cfg.CLOCK)
 		V -= dV
 		for tr in tracklist:
-			tr.volume(V,mode='set')
+			tracks[tr].volume(V,mode='set')
 	for tr in tracklist:
-		tr.volume(Vend,mode='set')
+		tracks[tr].volume(Vend,mode='set')
+		
+def setVol(tracks,tracklist,V):
+	assert type(tracklist) == list, 'must be a list of tracks'
+	# input volumes in dB, time in seconds
+	# set volume (decimal)
+	V = db2value(V)
+	for tr in tracklist:
+		tracks[tr].volume(V,mode='set')
 		
 # Position (generic device)
 		

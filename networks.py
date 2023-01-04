@@ -74,10 +74,10 @@ def BachBAChorale(chorale,dirpaths,random=False):
 	
 	bachChorale = m21.corpus.parse(chorale).corpusFilepath
 	seq,chords,_ = mk.dictionary(space='score',scorefil=bachChorale,music21=True,show=False)
-	bnodes,bedges,_,_,_,_,_ = mk.network(space='score',seq=seq,ntx=True,general=True,distance='euclidean',
+	bnodes,bedges,_ = mk.network(space='score',seq=seq,ntx=False,general=True,distance='euclidean',
 										grphtype='directed')
 	
-	euseq,_,_ = harmonicDesign(mk,len(bnodes),bnodes,bedges,nedges=2,seed=10,reverse=True,display=False,write=False)
+	euseq,_,_ = harmonicDesign(mk,len(bnodes),bnodes,bedges,nedges=2,seed=None,reverse=True,display=False,write=False)
 	
 	# make all chords of cardinality 4
 	ch = np.zeros((len(euseq),4))
