@@ -98,7 +98,9 @@ def playerB(clips,track,delay=0.0,source=False,azi=0.0,ele=0.0,mode='network',ex
 				X = 2.0*np.random.rand() - 1.0
 				Spat(track+1).car(X,1.0,0.0,azi,ele)
 			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
-			time.sleep(np.abs(60.0/cfg.tempo*cfg.beat[track]+np.random.rand()*cfg.sleep[track]))
+			tsleep = np.max([np.abs(60.0/cfg.tempo*cfg.beat[track]+np.random.rand()*cfg.sleep[track]),
+				             np.abs(clips[track][seq[n]].dur()+np.random.rand()*cfg.sleep[track]])
+			time.sleep(tsleep)
 			if cfg.stop[track]:
 				break
 						
