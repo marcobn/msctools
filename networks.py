@@ -65,7 +65,7 @@ def chinese_postman(graph,starting_node=None,verbose=False):
 	
 	return(create_eulerian_circuit(multi_graph, starting_node))
 
-def BachBAChorale(chorale,dirpaths,random=False):
+def BachBAChorale(chorale,dirpaths,random=False,nseed=None):
 	
 	# Chorale reconstruction from J.S. Bach with BA networks of pitch and rhythm
 	# Uses the music21 corpus
@@ -77,7 +77,7 @@ def BachBAChorale(chorale,dirpaths,random=False):
 	bnodes,bedges,_ = mk.network(space='score',seq=seq,ntx=False,general=True,distance='euclidean',
 										grphtype='directed')
 	
-	euseq,_,_ = harmonicDesign(mk,len(bnodes),bnodes,bedges,nedges=2,seed=None,reverse=True,display=False,write=False)
+	euseq,_,_ = harmonicDesign(mk,len(bnodes),bnodes,bedges,nedges=2,seed=nseed,reverse=True,display=False,write=False)
 	
 	# make all chords of cardinality 4
 	ch = np.zeros((len(euseq),4))
@@ -105,7 +105,7 @@ def BachBAChorale(chorale,dirpaths,random=False):
 	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
 							distance='euclidean',prob=1,write=False)
 	
-	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=None,reverse=True)
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed,reverse=True)
 
 	part1 = m21.stream.Stream()
 	part1.insert(0, m21.meter.TimeSignature('4/4'))
@@ -115,7 +115,7 @@ def BachBAChorale(chorale,dirpaths,random=False):
 		nota.octave = np.random.choice([3,4,5])
 		part1.append(nota)
 		
-	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=None,reverse=False)
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed+1,reverse=False)
 	
 	part2 = m21.stream.Stream()
 	part2.insert(0, m21.meter.TimeSignature('4/4'))
@@ -125,7 +125,7 @@ def BachBAChorale(chorale,dirpaths,random=False):
 		nota.octave = np.random.choice([3,4,5])
 		part2.append(nota)
 		
-	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=None,reverse=True)
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed+2,reverse=True)
 	
 	part3 = m21.stream.Stream()
 	part3.insert(0, m21.meter.TimeSignature('4/4'))
@@ -135,7 +135,7 @@ def BachBAChorale(chorale,dirpaths,random=False):
 		nota.octave = np.random.choice([3,4,5])
 		part3.append(nota)
 	
-	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=None,reverse=False)
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed+3,reverse=False)
 	
 	part4 = m21.stream.Stream()
 	part4.insert(0, m21.meter.TimeSignature('4/4'))
@@ -265,3 +265,86 @@ def BachBAChorale(chorale,dirpaths,random=False):
 	bass = [Bseq,Bdur]
 	
 	return([soprano,alto,tenor,bass])
+
+def hungarianArtNetwork():
+	
+	import json
+	import pandas as pd
+	import numpy as np
+	import networkx as nx
+	from musicntwrk.harmony.scoreFilter import scoreFilter
+	from musicntwrk.harmony.changePoint import changePoint
+	from musicntwrk.data.WRITEscoreOps import WRITEscoreOps
+	from musicntwrk.utils.Remove import pruneList
+	
+	with open('./HungarianArtNet/Version4-all-artist-hunagraian_characters.json') as f:
+		templates = json.load(f)
+	
+	nodesdict = dict(zip(templates['info']['nodes']['labels'],np.linspace(0,2258,2259,dtype=int)))
+	linklabels = templates['info']['links']['labels']
+	
+	source = []
+	target = []
+	label = []
+	for n in range(len(linklabels)):
+		source.append(nodesdict[linklabels[n].split('; ')[0]])
+		target.append(nodesdict[linklabels[n].split('; ')[1]])
+		label.append(linklabels[n])
+	links = []
+	for n in range(len(linklabels)):
+		links.append([source[n],target[n],1.0,label[n]])
+		
+	
+	hunedges = pd.DataFrame(links,columns=['Source','Target','Weight','Label'])
+	Gx = nx.from_pandas_edgelist(hunedges,'Source','Target',['Weight','Label'])
+	
+	source = []
+	target = []
+	label = []
+	nlinks = 0
+	for n in range(len(linklabels)):
+		if Gx.degree[nodesdict[linklabels[n].split('; ')[0]]] < 6 or \
+			Gx.degree[nodesdict[linklabels[n].split('; ')[1]]] < 6:
+			pass
+		else:
+			source.append(nodesdict[linklabels[n].split('; ')[0]])
+			target.append(nodesdict[linklabels[n].split('; ')[1]])
+			label.append(linklabels[n])
+			nlinks += 1
+	filteredlinks = []
+	for n in range(nlinks):
+		filteredlinks.append([source[n],target[n],1.0,label[n]])
+		
+	hunedgesfilt = pd.DataFrame(filteredlinks,columns=['Source','Target','Weight','Label'])
+	Gxf = nx.from_pandas_edgelist(hunedgesfilt,'Source','Target',['Weight','Label'])
+	Gcc = Gxf.subgraph(sorted(nx.connected_components(Gxf), key=len, reverse=True)[0])
+	
+	path = chinese_postman(Gcc,starting_node=np.sort(Gcc.degree,axis=0)[-1][0],verbose=False)
+	
+	seq = []
+	for p in path:
+		seq.append(p[0])
+	seq.append(path[-1][1])
+	value,valuef,filtered = scoreFilter(seq,None,thr=3,plot=False)
+	
+	sections = changePoint(valuef,penalty=2.0,plot=False)
+	regions = [None]*(len(sections)-1)
+	for i in range(len(sections)-1):
+		regions[i] = valuef[sections[i]:sections[i+1]]
+		
+	Maj = np.array([0,4,7,11])
+	Min = np.array([0,3,7,10])
+	Dom = np.array([0,4,7,10])
+	Dim = np.array([0,3,6,9])
+	Aug = np.array([0,4,8,11])
+	
+	tetrachords = []
+	for p in range(12):
+		tetrachords.append((Maj+p)%12)
+		tetrachords.append((Min+p)%12)
+		tetrachords.append((Dom+p)%12)
+		tetrachords.append((Dim+p)%12)
+		tetrachords.append((Aug+p)%12)
+	tetrachords = np.array(tetrachords)
+	
+	return(tetrachords,regions)
