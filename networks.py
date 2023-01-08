@@ -110,7 +110,7 @@ def BachBAChorale(chorale,random=False,nseed=None):
 	
 	return(c)
 
-def hungarianArtNetwork(jfile,random=True,nseed=1010):
+def hungarianArtNetwork(jfile):
 	
 	with open(jfile,) as f:
 		templates = json.load(f)
@@ -166,32 +166,76 @@ def hungarianArtNetwork(jfile,random=True,nseed=1010):
 	regions = [None]*(len(sections)-1)
 	for i in range(len(sections)-1):
 		regions[i] = valuef[sections[i]:sections[i+1]]
-		
-	Maj = np.array([0,4,7,11])
-	Min = np.array([0,3,7,10])
-	Dom = np.array([0,4,7,10])
-	Dim = np.array([0,3,6,9])
-	Aug = np.array([0,4,8,11])
 	
-	tetrachords = []
-	for p in range(12):
-		tetrachords.append((Maj+p)%12)
-		tetrachords.append((Min+p)%12)
-		tetrachords.append((Dom+p)%12)
-		tetrachords.append((Dim+p)%12)
-		tetrachords.append((Aug+p)%12)
-	tetrachords = np.array(tetrachords)
+	return(regions)
+
+def chordDistr(mode='scale',random=True,seed=1010):
 	
-	if random:
-		rng = np.random.default_rng(nseed)
-		tetra = np.copy(tetrachords)
-		rng.shuffle(tetra)
-		c = []
-		for i in range(len(tetra)):
-			c.append(rng.permutation(np.asarray(tetra[i])))
-		tetra = np.array(c)
+	if mode == 'chord':
+	# build an abstract distribution of chords
+		Maj = np.array([0,4,7,0])
+		Min = np.array([0,3,7,0])
+		Maj7 = np.array([0,4,7,11])
+		Min7 = np.array([0,3,7,10])
+		Dom7 = np.array([0,4,7,10])
+		Dim7 = np.array([0,3,6,9])
+		Aug7 = np.array([0,4,8,11])
 		
-	return(tetra,regions)
+		tetrachords = []
+		for p in range(12):
+			tetrachords.append((Maj+p)%12)
+			tetrachords.append((Maj+p)%12)
+			tetrachords.append((Maj7+p)%12)
+			tetrachords.append((Min+p)%12)
+			tetrachords.append((Min+p)%12)
+			tetrachords.append((Min7+p)%12)
+			tetrachords.append((Dom7+p)%12)
+			tetrachords.append((Dim7+p)%12)
+			tetrachords.append((Aug7+p)%12)
+		
+		tetrachords = np.array(tetrachords)
+	
+		if random:
+			rng = np.random.default_rng(seed)
+			tetra = np.copy(tetrachords)
+			rng.shuffle(tetra)
+			c = []
+			for i in range(len(tetra)):
+				c.append(rng.permutation(np.asarray(tetra[i])))
+			tetra = np.array(c)
+			
+		return(tetra)
+	
+	if mode == 'scale':
+		# build a distribution of chords nbased on scales
+		chords = np.zeros((12,7,4),dtype=int)
+		chords[0,0,:] = np.array([0,4,7,0])
+		chords[0,1,:] = np.array([2,5,9,2])
+		chords[0,2,:] = np.array([4,7,11,4])
+		chords[0,3,:] = np.array([5,9,0,5])
+		chords[0,4,:] = np.array([7,11,2,5])
+		chords[0,5,:] = np.array([9,0,4,9])
+		chords[0,6,:] = np.array([11,2,5,9])
+		# chords[0,7,:] = np.array([0,4,7,11])
+		# chords[0,8,:] = np.array([2,5,9,0])
+		# chords[0,9,:] = np.array([4,7,11,2])
+		# chords[0,10,:] = np.array([5,9,0,4])
+		# chords[0,11,:] = np.array([7,11,2,5])
+		# chords[0,12,:] = np.array([9,0,4,7])
+		# chords[0,13,:] = np.array([11,2,5,9])
+		
+		if random:
+			rng = np.random.default_rng(seed)
+			rng.shuffle(chords[0])
+			
+			for i in range(1,12):
+				chords[i,:,:] = (chords[0,:,:] + (5*i))%12
+				rng = np.random.default_rng(seed+1)
+				rng.shuffle(chords[i])
+		
+		chords = np.reshape(chords,(12*7,4))
+		
+		return(chords)
 
 def fourPartScore(c,dirpaths,N,Nc,nseed=[None,None,None,None]):
 	

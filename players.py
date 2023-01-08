@@ -104,7 +104,7 @@ def playerB(clips,track,delay=0.0,source=False,azi=0.0,ele=0.0,mode='network',ex
 			if cfg.stop[track]:
 				break
 						
-def scorePlayer(clips,track,score,delay=0):
+def scorePlayer(clips,track,score,delay=0,hold=False):
 	''' 
 	Play clips in sequence according to a score read as musicxml (pitch + duration)
 	score[0] = pitches
@@ -119,9 +119,13 @@ def scorePlayer(clips,track,score,delay=0):
 		dur = score[1]
 		for n in range(len(seq)):
 			client("/live/clip/fire",[track,seq[n]],port=11000).send()
-			tsleep = np.max([np.abs(60.0/cfg.tempo*cfg.beat[track]*dur[n]+(2*np.random.rand()-1)*cfg.sleep[track]),
-							 np.abs(clips[track][seq[n]].dur()+np.random.rand()*cfg.sleep[track])])
-			time.sleep(tsleep)
+			if hold:
+				tsleep = np.max([np.abs(60.0/cfg.tempo*cfg.beat[track]*dur[n]+(2*np.random.rand()-1)*cfg.sleep[track]),
+								np.abs(clips[track][seq[n]].dur()+np.random.rand()*cfg.sleep[track])])
+				time.sleep(tsleep)
+			else:
+				tsleep = np.abs(60.0/cfg.tempo*cfg.beat[track]*dur[n]+(2*np.random.rand()-1)*cfg.sleep[track])
+				time.sleep(tsleep)
 			if cfg.stop[track]:
 				break
 
