@@ -169,7 +169,7 @@ def hungarianArtNetwork(jfile):
 	
 	return(regions)
 
-def chordDistr(mode='scale',random=True,seed=1010):
+def chordDistr(mode='scale',random=True,seed=1010,step=7):
 	
 	if mode == 'chord':
 	# build an abstract distribution of chords
@@ -229,7 +229,7 @@ def chordDistr(mode='scale',random=True,seed=1010):
 			rng.shuffle(chords[0])
 			
 			for i in range(1,12):
-				chords[i,:,:] = (chords[0,:,:] + (5*i))%12
+				chords[i,:,:] = (chords[0,:,:] + (step*i))%12
 				rng = np.random.default_rng(seed+1)
 				rng.shuffle(chords[i])
 		
