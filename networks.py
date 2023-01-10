@@ -228,23 +228,33 @@ def chordDistr(mode='scale',random=True,seed=1010,step=7):
 			rng = np.random.default_rng(seed)
 			rng.shuffle(chords[0])
 			
-			for i in range(1,12):
-				chords[i,:,:] = (chords[0,:,:] + (step*i))%12
-				rng = np.random.default_rng(seed+1)
-				rng.shuffle(chords[i])
+			per  = int(12/np.unique([(l*step)%12 for l in range(12)]).shape[0])
+			
+			n = 0
+			for p in range(per):
+				for i in [(l*step)%12 for l in range(int(12/per))]:
+					chords[n,:,:] = (chords[0,:,:] + i + p)%12
+					n += 1
+		else:
+			per  = int(12/np.unique([(l*step)%12 for l in range(12)]).shape[0])
+			
+			n = 0
+			for p in range(per):
+				for i in [(l*step)%12 for l in range(int(12/per))]:
+					chords[n,:,:] = (chords[0,:,:] + i + p)%12
+					n += 1
 		
 		chords = np.reshape(chords,(12*7,4))
 		
 		return(chords)
 
-def fourPartScore(c,dirpaths,N,Nc,nseed=[None,None,None,None]):
+def fourPartScore(c,dirpaths,N,Nc,nseed=[None,None,None,None],ref=['e','e','e','e']):
 	
 	assert len(dirpaths) == 4
 	
-	dictrtm,_ = mk.dictionary(space='rhythmP',N=N,Nc=Nc,REF='e')
+	dictrtm,_ = mk.dictionary(space='rhythmP',N=N,Nc=Nc,REF=ref[0])
 	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
 							distance='euclidean',prob=1,write=False)
-	
 	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed[0],reverse=True)
 
 	part1 = m21.stream.Stream()
@@ -255,6 +265,9 @@ def fourPartScore(c,dirpaths,N,Nc,nseed=[None,None,None,None]):
 		nota.octave = np.random.choice([3,4,5])
 		part1.append(nota)
 		
+	dictrtm,_ = mk.dictionary(space='rhythmP',N=N,Nc=Nc,REF=ref[1])
+	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
+							distance='euclidean',prob=1,write=False)
 	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed[1],reverse=False)
 	
 	part2 = m21.stream.Stream()
@@ -264,7 +277,10 @@ def fourPartScore(c,dirpaths,N,Nc,nseed=[None,None,None,None]):
 		nota.duration = durations[i%len(durations)]
 		nota.octave = np.random.choice([3,4,5])
 		part2.append(nota)
-		
+	
+	dictrtm,_ = mk.dictionary(space='rhythmP',N=N,Nc=Nc,REF=ref[2])
+	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
+							distance='euclidean',prob=1,write=False)
 	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed[2],reverse=True)
 	
 	part3 = m21.stream.Stream()
@@ -275,6 +291,9 @@ def fourPartScore(c,dirpaths,N,Nc,nseed=[None,None,None,None]):
 		nota.octave = np.random.choice([3,4,5])
 		part3.append(nota)
 	
+	dictrtm,_ = mk.dictionary(space='rhythmP',N=N,Nc=Nc,REF=ref[3])
+	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
+							distance='euclidean',prob=1,write=False)
 	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed[3],reverse=False)
 	
 	part4 = m21.stream.Stream()
@@ -287,17 +306,35 @@ def fourPartScore(c,dirpaths,N,Nc,nseed=[None,None,None,None]):
 
 	S = []
 	for s in part1.recurse().notes:
-		S.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		try:
+			S.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		except:
+			S.append([str(s.pitch),float(str(s.duration).split()[-1][:-1].split('/')[0])/\
+								   float(str(s.duration).split()[-1][:-1].split('/')[1])])
 	A = []
 	for s in part2.recurse().notes:
-		A.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		try:
+			A.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		except:
+			A.append([str(s.pitch),float(str(s.duration).split()[-1][:-1].split('/')[0])/\
+								   float(str(s.duration).split()[-1][:-1].split('/')[1])])
+				
 	T = []
 	for s in part3.recurse().notes:
-		T.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		try:
+			T.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		except:
+			T.append([str(s.pitch),float(str(s.duration).split()[-1][:-1].split('/')[0])/\
+								   float(str(s.duration).split()[-1][:-1].split('/')[1])])
+				
 	B = []
 	for s in part4.recurse().notes:
-		B.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
-		
+		try:
+			B.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		except:
+			B.append([str(s.pitch),float(str(s.duration).split()[-1][:-1].split('/')[0])/\
+								   float(str(s.duration).split()[-1][:-1].split('/')[1])])
+				
 	files = sorted(importSoundfiles(dirpath=dirpaths[0],filepath='*.wav'))
 
 	idx = []
@@ -406,3 +443,4 @@ def fourPartScore(c,dirpaths,N,Nc,nseed=[None,None,None,None]):
 	
 	return([soprano,alto,tenor,bass])
 
+				
