@@ -130,7 +130,7 @@ def lines(source,device,posA,posB,T,cycle=1,*args):
 				time.sleep(wait)
 			if cfg.stop_source[source]: break
 			
-def lineCycle(source,device,pos0,T,cycle=1,dir='r',*args):
+def lineCycle(source,device,X0,Y0,Z0,T,cycle=1,dir='r',*args):
 	# Spans the whole range [-1.0,1.0] starting from an arbitrary position in time T
 	# to be used in source placement - dir='r' starts movement in r direction ('l' for left)
 	# version for MEET - change only X coordinate
@@ -139,12 +139,12 @@ def lineCycle(source,device,pos0,T,cycle=1,dir='r',*args):
 	else:
 		c0 = 1
 	nt = int(T/cfg.CLOCK)
-	nt0 = int((pos0+1)/2*nt)
+	nt0 = int((X0+1)/2*nt)
 	# Formula to correct for the delay in the Spat OSC messaging server (empirical!!!)
 	wait = (T-0.0028*nt)/nt
 	X = np.linspace(-1,1,nt)
-	Y = np.linspace(1,1,nt)
-	Z = np.linspace(0,0,nt)
+	Y = np.linspace(Y0,Y0,nt)
+	Z = np.linspace(Z0,Z0,nt)
 	if dir == 'r':
 		for i in range(nt0,nt):
 			device.car(X[i*(-1)**c0],Y[i*(-1)**c0],Z[i*(-1)**c0],*args)

@@ -122,7 +122,7 @@ class Track:
 	def nclips(self):
 		client("/live/track/get/clips/name",[self.n],self.host,self.port).send()
 		time.sleep(cfg.TICK)
-		return((len(cfg.data)))
+		return((len(cfg.data)-1))
 	
 	def ndevices(self):
 		client("/live/track/get/num_devices",[self.n],self.host,self.port).send()
@@ -173,7 +173,7 @@ class Clip:
 	def dur(self):
 		client("/live/clip/get/file_path",[self.n,self.c],self.host,self.port).send()
 		time.sleep(cfg.TICK)
-		fil = cfg.data[0]
+		fil = cfg.data[2]
 		sr, wav = wavfile.read(fil)
 		nsamples = wav.size/wav.shape[1]
 		return(nsamples/sr)
