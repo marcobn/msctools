@@ -92,7 +92,7 @@ class Track:
 		if mode == 'get':
 			client("/live/track/get/volume",[self.n],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			return(value2db(cfg.data[0]))
+			return(value2db(cfg.data[1]))
 		
 	def name(self,names=None,mode='set'):
 		if mode == 'set':
@@ -100,7 +100,7 @@ class Track:
 		if mode == 'get':
 			client("/live/track/get/name",[self.n],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			return(cfg.data)
+			return(cfg.data[1])
 		
 	def panning(self,pan=0,mode='set'):
 		client("/live/track/set/panning",[self.n,pan],self.host,self.port).send()
@@ -109,15 +109,15 @@ class Track:
 		if mode == 'name':
 			client("/live/track/get/arrangement_clips/name",[self.n],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			return(cfg.data)
+			return(cfg.data[1])
 		if mode == 'length':
 			client("/live/track/get/arrangement_clips/length",[self.n],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			return(cfg.data)
+			return(cfg.data[1])
 		if mode == 'start_time':
 			client("/live/track/get/arrangement_clips/start_time",[self.n],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			return(cfg.data)
+			return(cfg.data[1])
 		
 	def nclips(self):
 		client("/live/track/get/clips/name",[self.n],self.host,self.port).send()
@@ -127,12 +127,12 @@ class Track:
 	def ndevices(self):
 		client("/live/track/get/num_devices",[self.n],self.host,self.port).send()
 		time.sleep(cfg.TICK)
-		return(cfg.data[0])
+		return(cfg.data[1])
 	
 	def devnames(self):
 		client("/live/track/get/devices/name",[self.n],self.host,self.port).send()
 		time.sleep(cfg.TICK)
-		return(cfg.data)
+		return(cfg.data[1])
 	
 class Clip:
 	
@@ -148,7 +148,7 @@ class Clip:
 		if mode == 'get':
 			client("/live/clip/get/name",[self.n,self.c],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			return(cfg.data)
+			return(cfg.data[2])
 		
 	def fire(self):
 		client("/live/clip/fire",[self.n,self.c],self.host,self.port).send()
@@ -156,7 +156,7 @@ class Clip:
 	def fpath(self):
 		client("/live/clip/get/file_path",[self.n,self.c],self.host,self.port).send()
 		time.sleep(cfg.TICK)
-		return(cfg.data[0])
+		return(cfg.data[2])
 	
 	def looping(self,mode='off'):
 		if mode == 'off':
@@ -207,31 +207,31 @@ class Device:
 	def name(self):
 		client("/live/device/get/name",[self.n,self.d],self.host,self.port).send()
 		time.sleep(cfg.TICK)
-		return(cfg.data[0])
+		return(cfg.data[2])
 	
 	def num(self):
 		client("/live/device/get/num_parameters",[self.n,self.d],self.host,self.port).send()
 		time.sleep(cfg.TICK)
-		return(cfg.data[0])
+		return(cfg.data[2])
 	
 	def max(self):
 		client("/live/device/get/parameters/max",[self.n,self.d],self.host,self.port).send()
 		time.sleep(cfg.TICK)
-		return(cfg.data)
+		return(cfg.data[2])
 	
 	def min(self):
 		client("/live/device/get/parameters/min",[self.n,self.d],self.host,self.port).send()
 		time.sleep(cfg.TICK)
-		return(cfg.data)
+		return(cfg.data[2])
 	
 	def cntrldict(self,mode='get'):
 		if mode =='get':
 			client("/live/device/get/parameters/name",[self.n,self.d],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			keys = list(cfg.data).copy()
+			keys = list(cfg.data[2:]).copy()
 			client("/live/device/get/parameters/value",[self.n,self.d],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			values = list(cfg.data).copy()
+			values = list(cfg.data[2:]).copy()
 			pardict = dict(zip(keys,values))
 			assert len(pardict) == self.num(),'duplicate keys - use cntrllist method instead'
 			return(pardict)
@@ -248,12 +248,12 @@ class Device:
 				time.sleep(cfg.TICK)
 				client("/live/device/get/parameter/name",[self.n,self.d,n],self.host,self.port).send()
 				time.sleep(cfg.TICK)
-				keys.append(cfg.data[0])
+				keys.append(cfg.data[3])
 			for n in range(self.num()):
 				time.sleep(cfg.TICK)
 				client("/live/device/get/parameter/value",[self.n,self.d,n],self.host,self.port).send()
 				time.sleep(cfg.TICK)
-				values.append(float(cfg.data[0]))
+				values.append(float(cfg.data[3]))
 			return(np.array(keys),np.array(values))
 		if mode =='set':
 			client("/live/device/set/parameters/value",[self.n,self.d]+self.cntr,
@@ -264,11 +264,11 @@ class Device:
 		if mode == 'name':
 			client("/live/device/get/parameter/name",[self.n,self.d,n],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			return(cfg.data[0])
+			return(cfg.data[3])
 		if mode == 'get':
 			client("/live/device/get/parameter/value",[self.n,self.d,n],self.host,self.port).send()
 			time.sleep(cfg.TICK)
-			return(cfg.data[0])
+			return(cfg.data[3])
 		if mode == 'set':
 			client("/live/device/set/parameter/value",[self.n,self.d,n,val],self.host,self.port).send()
 			time.sleep(cfg.TICK)
