@@ -14,7 +14,7 @@ from .osctools import client
 
 import msctools.cfg as cfg
 
-def playerA(clips,track,delay=0.0,source=None,random=False,azi=0.0,ele=0.0,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
+def playerA(clips,track,delay=0.0,source=None,random=False,Y0=1.0,Z0=0.0,azi=0.0,ele=0.0,mode='network',external=None,nxmodel='barabasi_albert_graph',*args):
 	''' 
 	Play clips in sequence waiting for next clip in following mode
 	mode = "network"    : sequence defined by the eulerian path on a network
@@ -52,7 +52,7 @@ def playerA(clips,track,delay=0.0,source=None,random=False,azi=0.0,ele=0.0,mode=
 			# set position of Spat source if needed
 			if random:
 				X = 2.0*np.random.rand() - 1.0
-				Spat(source).car(X,1.0,0.0,azi,ele)
+				Spat(source).car(X,Y0,Z0,azi,ele)
 			client("/live/clip/fire",[track,seq[n]],cfg.HOST,cfg.PORT).send()
 			time.sleep(np.abs(clips[track][seq[n]].dur()+np.random.rand()*cfg.sleep[track]))
 			if cfg.stop[track]:
