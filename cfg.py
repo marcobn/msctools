@@ -15,8 +15,9 @@ write = False
 tempo = 60.0
 
 NTRACK = 128
+NSOURCE = 128
 stop = np.array([False]*NTRACK)
-stop_source = np.array([False]*NTRACK)
+stop_source = np.array([False]*NSOURCE)
 sleep = np.array([0.0]*NTRACK)
 beat = np.array([1.0]*NTRACK)
 

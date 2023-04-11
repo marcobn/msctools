@@ -84,6 +84,15 @@ class Track:
 	def disarm(self):
 		client("/live/track/set/arm",[self.n,0],self.host,self.port).send()
 		
+	def solo(self):
+		client("/live/track/set/solo",[self.n,1],self.host,self.port).send()
+		
+	def tutti(self):
+		client("/live/track/set/solo",[self.n,0],self.host,self.port).send()
+
+	def stop_all_clips(self):
+		client("/live/track/stop_all_clips",[self.n],self.host,self.port).send()
+		
 	def volume(self,vol=db2value(0.0),mode='set'):
 		if mode == 'setdb':
 			client("/live/track/set/volume",[self.n,db2value(vol)],self.host,self.port).send()
@@ -152,6 +161,9 @@ class Clip:
 		
 	def fire(self):
 		client("/live/clip/fire",[self.n,self.c],self.host,self.port).send()
+		
+	def stop(self):
+		client("/live/clip/stop",[self.n,self.c],self.host,self.port).send()
 		
 	def fpath(self):
 		client("/live/clip/get/file_path",[self.n,self.c],self.host,self.port).send()

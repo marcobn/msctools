@@ -207,7 +207,7 @@ def chordDistr(mode='scale',random=True,seed=1010,step=7):
 		return(tetra)
 	
 	if mode == 'scale':
-		# build a distribution of chords nbased on scales
+		# build a distribution of chords based on scales
 		chords = np.zeros((12,7,4),dtype=int)
 		chords[0,0,:] = np.array([0,4,7,0])
 		chords[0,1,:] = np.array([2,5,9,2])
