@@ -13,7 +13,7 @@ import msctools.cfg as cfg
 
 # Dynamics
 
-def multiEnv(tracklist,T,omega=None):
+def multiEnvLive(tracklist,T,omega=None):
 
 	# general function that builds the envelope series for each individual channel
 	# with a constant amplitude algorithm and arbiitrarily chosen time of flight for each channel
@@ -208,3 +208,4 @@ def circlesDeg(source,aziA,aziB,T):
 		Spat(source).deg(d,0.0,1.0,*args)
 		d += sign*ddeg
 		time.sleep(cfg.CLOCK)
+		
