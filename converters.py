@@ -77,12 +77,12 @@ def s2c(r,theta,phi):
 	return(x,y,z)
 
 def c2s(x, y, z):
-    # carthesian to spherical conversion
-    xy = np.sqrt(x**2 + y**2) # sqrt(x² + y²)
-    x_2 = x**2
-    y_2 = y**2
-    z_2 = z**2
-    r = np.sqrt(x_2 + y_2 + z_2) # r = sqrt(x² + y² + z²)
-    theta = np.arctan2(y, x) 
-    phi = np.arctan2(xy, z) 
-    return r, theta, phi
+	# carthesian to spherical conversion
+	xy = np.sqrt(x**2 + y**2) # sqrt(x² + y²)
+	x_2 = x**2
+	y_2 = y**2
+	z_2 = z**2
+	r = np.sqrt(x_2 + y_2 + z_2) # r = sqrt(x² + y² + z²)
+	theta = np.arctan2(y, x) 
+	phi = np.arctan2(xy, z) 
+	return r, theta, phi
