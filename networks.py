@@ -443,4 +443,215 @@ def fourPartScore(c,dirpaths,N,Nc,nseed=[None,None,None,None],ref=['e','e','e','
 	
 	return([soprano,alto,tenor,bass])
 
+def fourPartScoreP(c,dirpaths,N,Nc,nseed=[None,None,None,None],ref=['e','e','e','e']):
+	
+	assert len(dirpaths) == 4
+	
+	dictrtm,_ = mk.dictionary(space='rhythmP',N=N,Nc=Nc,REF=ref[0])
+	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
+							distance='euclidean',prob=1,write=False)
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed[0],reverse=True)
+
+	part1 = m21.stream.Stream()
+	part1.insert(0, m21.meter.TimeSignature('4/4'))
+	for i in range(c.shape[0]):
+		nota = m21.note.Note(c[i,0])
+		nota.duration = durations[i%len(durations)]
+		nota.octave = np.random.choice([4,5,6])
+		part1.append(nota)
+		
+	dictrtm,_ = mk.dictionary(space='rhythmP',N=N,Nc=Nc,REF=ref[1])
+	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
+							distance='euclidean',prob=1,write=False)
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed[1],reverse=False)
+	
+	part2 = m21.stream.Stream()
+	part2.insert(0, m21.meter.TimeSignature('4/4'))
+	for i in range(c.shape[0]):
+		nota = m21.note.Note(c[i,1])
+		nota.duration = durations[i%len(durations)]
+		nota.octave = np.random.choice([4,5,6])
+		part2.append(nota)
+	
+	dictrtm,_ = mk.dictionary(space='rhythmP',N=N,Nc=Nc,REF=ref[2])
+	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
+							distance='euclidean',prob=1,write=False)
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed[2],reverse=True)
+	
+	part3 = m21.stream.Stream()
+	part3.insert(0, m21.meter.TimeSignature('4/4'))
+	for i in range(c.shape[0]):
+		nota = m21.note.Note(c[i,2])
+		nota.duration = durations[i%len(durations)]
+		nota.octave = np.random.choice([4,5,6])
+		part3.append(nota)
+	
+	dictrtm,_ = mk.dictionary(space='rhythmP',N=N,Nc=Nc,REF=ref[3])
+	nodes,edges = mk.network(space='rLead',dictionary=dictrtm,thup=30,thdw=0.1,
+							distance='euclidean',prob=1,write=False)
+	durations = rhythmicDesign(dictrtm,len(nodes),2,nodes,edges,random=True,seed=nseed[3],reverse=False)
+	
+	part4 = m21.stream.Stream()
+	part4.insert(0, m21.meter.TimeSignature('4/4'))
+	for i in range(c.shape[0]):
+		nota = m21.note.Note(c[i,3])
+		nota.duration = durations[i%len(durations)]
+		nota.octave = np.random.choice([4,5,6])
+		part4.append(nota)
+
+	S = []
+	for s in part1.recurse().notes:
+		try:
+			S.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		except:
+			S.append([str(s.pitch),float(str(s.duration).split()[-1][:-1].split('/')[0])/\
+								   float(str(s.duration).split()[-1][:-1].split('/')[1])])
+	A = []
+	for s in part2.recurse().notes:
+		try:
+			A.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		except:
+			A.append([str(s.pitch),float(str(s.duration).split()[-1][:-1].split('/')[0])/\
+								   float(str(s.duration).split()[-1][:-1].split('/')[1])])
 				
+	T = []
+	for s in part3.recurse().notes:
+		try:
+			T.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		except:
+			T.append([str(s.pitch),float(str(s.duration).split()[-1][:-1].split('/')[0])/\
+								   float(str(s.duration).split()[-1][:-1].split('/')[1])])
+				
+	B = []
+	for s in part4.recurse().notes:
+		try:
+			B.append([str(s.pitch),float(str(s.duration).split()[-1][:-1])])
+		except:
+			B.append([str(s.pitch),float(str(s.duration).split()[-1][:-1].split('/')[0])/\
+								   float(str(s.duration).split()[-1][:-1].split('/')[1])])
+				
+	files = sorted(importSoundfiles(dirpath=dirpaths[0],filepath='*.wav'))
+
+	idx = []
+	fil = []
+	for i,f in enumerate(files):
+		idx.append(i)
+		fil.append(f.split('/')[-1].split('.')[0][2:])
+	
+	Sdict = dict(zip(fil,idx))
+	
+	files = sorted(importSoundfiles(dirpath=dirpaths[1],filepath='*.wav'))
+	
+	idx = []
+	fil = []
+	for i,f in enumerate(files):
+		idx.append(i)
+		fil.append(f.split('/')[-1].split('.')[0][2:])
+	
+	Adict = dict(zip(fil,idx))
+	
+	files = sorted(importSoundfiles(dirpath=dirpaths[2],filepath='*.wav'))
+	
+	idx = []
+	fil = []
+	for i,f in enumerate(files):
+		idx.append(i)
+		fil.append(f.split('/')[-1].split('.')[0][2:])
+	
+	Tdict = dict(zip(fil,idx))
+	
+	files = sorted(importSoundfiles(dirpath=dirpaths[3],filepath='*.wav'))
+	
+	idx = []
+	fil = []
+	for i,f in enumerate(files):
+		idx.append(i)
+		fil.append(f.split('/')[-1].split('.')[0][2:])
+	
+	Bdict = dict(zip(fil,idx))
+	
+	Sseq = []
+	Sdur = []
+	Aseq = []
+	Adur = []
+	Tseq = []
+	Tdur = []
+	Bseq = []
+	Bdur = []
+	for n in S:
+		try:
+			Sseq.append(Sdict[n[0]])
+			Sdur.append(n[1])
+		except:
+			if n[0][-1] == '5':
+				new = n[0][:-1]+str(int(n[0][-1])-1)
+			elif n[0][-1] == '3':
+				new = n[0][:-1]+str(int(n[0][-1])+1)
+			else:
+				new = n[0]
+			Sseq.append(Sdict[new])
+			Sdur.append(n[1])
+	for n in A:
+		try:
+			Aseq.append(Adict[n[0]])
+			Adur.append(n[1])
+		except:
+			if n[0][-1] == '5':
+				new = n[0][:-1]+str(int(n[0][-1])-1)
+			elif n[0][-1] == '3':
+				new = n[0][:-1]+str(int(n[0][-1])+1)
+			else:
+				new = n[0]
+			Aseq.append(Adict[new])
+			Adur.append(n[1])
+	for n in T:
+		try:
+			Tseq.append(Tdict[n[0]])
+			Tdur.append(n[1])
+		except:
+			if n[0][-1] == '5':
+				new = n[0][:-1]+str(int(n[0][-1])-1)
+			elif n[0][-1] == '3':
+				new = n[0][:-1]+str(int(n[0][-1])+1)
+			else:
+				new = n[0]
+			Tseq.append(Sdict[new])
+			Tdur.append(n[1])
+	for n in B:
+		try:
+			Bseq.append(Bdict[n[0]])
+			Bdur.append(n[1])
+		except:
+			if n[0][-1] == '5':
+				new = n[0][:-1]+str(int(n[0][-1])-1)
+			elif n[0][-1] == '3':
+				new = n[0][:-1]+str(int(n[0][-1])+1)
+			else:
+				new = n[0]
+			Bseq.append(Sdict[new])
+			Bdur.append(n[1])
+		
+	soprano = [Sseq,Sdur]
+	alto = [Aseq,Adur]
+	tenor = [Tseq,Tdur]
+	bass = [Bseq,Bdur]
+	
+	return([soprano,alto,tenor,bass])
+
+	
+def sequence(nxmodel='barabasi_albert_graph',*args):
+    ''' 
+    : sequence defined by the eulerian path on a network
+    : network models can be found here: 
+    : https://networkx.org/documentation/stable/reference/generators.html
+                        : arguments are passed through *args
+    '''
+
+    mynetx = getattr(nx,nxmodel)
+    Gx = mynetx(*args)
+    chino = chinese_postman(Gx,None,verbose=False)
+    seq = [chino[0][0]]
+    for s in range(1,len(chino)):
+        seq.append(chino[s][1])
+
+    return(seq)

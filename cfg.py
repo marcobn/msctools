@@ -20,6 +20,8 @@ stop = np.array([False]*NTRACK)
 stop_source = np.array([False]*NSOURCE)
 sleep = np.array([0.0]*NTRACK)
 beat = np.array([1.0]*NTRACK)
+pan = [0.5]*NTRACK
+gain = [1.0]*NTRACK
 
 TICK = 0.15
 CLOCK = TICK/10
@@ -29,3 +31,5 @@ COMM_B = 18081
 COMM_C = 18082
 COMM_D = 18083
 HOST = "127.0.0.1"
+
+MASTER_STOP = False

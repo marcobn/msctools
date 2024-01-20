@@ -23,7 +23,14 @@ def clipList(session,tracks):
 	num_tracks = session.num_tracks()
 	num_clips = []
 	for n in range(num_tracks):
-		num_clips.append(tracks[n].nclips())
+		nclips = 0
+		for i in range(tracks[0].nclips()):
+		    try:
+		        if Clip(n,i).name(mode='get') != None:
+		            nclips += 1
+		    except:
+		        pass
+		num_clips.append(nclips)
 	clips = []
 	for n in range(num_tracks):
 		clp = []
