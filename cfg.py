@@ -32,4 +32,6 @@ COMM_C = 18082
 COMM_D = 18083
 HOST = "127.0.0.1"
 
+CLEANALL = False
 MASTER_STOP = False
+SCENE = None

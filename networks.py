@@ -169,7 +169,7 @@ def hungarianArtNetwork(jfile):
 	
 	return(regions)
 
-def chordDistr(mode='scale',random=True,seed=1010,step=7):
+def chordDistr(mode='scale',random=True,seed=1010,step=7,extended=False):
 	
 	if mode == 'chord':
 	# build an abstract distribution of chords
@@ -208,7 +208,10 @@ def chordDistr(mode='scale',random=True,seed=1010,step=7):
 	
 	if mode == 'scale':
 		# build a distribution of chords based on scales
-		chords = np.zeros((12,7,4),dtype=int)
+		if extended: 
+			chords = np.zeros((12,14,4),dtype=int)
+		else:
+			chords = np.zeros((12,7,4),dtype=int)
 		chords[0,0,:] = np.array([0,4,7,0])
 		chords[0,1,:] = np.array([2,5,9,2])
 		chords[0,2,:] = np.array([4,7,11,4])
@@ -216,13 +219,14 @@ def chordDistr(mode='scale',random=True,seed=1010,step=7):
 		chords[0,4,:] = np.array([7,11,2,5])
 		chords[0,5,:] = np.array([9,0,4,9])
 		chords[0,6,:] = np.array([11,2,5,9])
-		# chords[0,7,:] = np.array([0,4,7,11])
-		# chords[0,8,:] = np.array([2,5,9,0])
-		# chords[0,9,:] = np.array([4,7,11,2])
-		# chords[0,10,:] = np.array([5,9,0,4])
-		# chords[0,11,:] = np.array([7,11,2,5])
-		# chords[0,12,:] = np.array([9,0,4,7])
-		# chords[0,13,:] = np.array([11,2,5,9])
+		if extended:
+			chords[0,7,:] = np.array([0,4,7,11])
+			chords[0,8,:] = np.array([2,5,9,0])
+			chords[0,9,:] = np.array([4,7,11,2])
+			chords[0,10,:] = np.array([5,9,0,4])
+			chords[0,11,:] = np.array([7,11,2,5])
+			chords[0,12,:] = np.array([9,0,4,7])
+			chords[0,13,:] = np.array([11,2,5,9])
 		
 		if random:
 			rng = np.random.default_rng(seed)
