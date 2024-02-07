@@ -38,6 +38,8 @@ def playerP(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,impuls
             time.sleep(cfg.TICK)
             if cfg.stop[track]:
                 if snd.isPlaying(): snd.stop()
+                if rev.isPlaying(): rev.stop()
+                if panout.isPlaying(): panout.stop()
                 break
         snd.stop()
 
@@ -85,7 +87,13 @@ def playerP(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,impuls
             panout = pyo.SPan(rev,outs=2,pan=pan,mul=gain).out()
             # time.sleep(pyo.sndinfo(clips[seq[n]])[1]+delay*np.random.rand())
             sleep(pyo.sndinfo(clips[seq[n]])[1]+delay*np.random.rand())
+            panout.stop()
+            rev.stop()
+            snd.stop()
             if cfg.stop[track]:
+                panout.stop()
+                rev.stop()
+                snd.stop()
                 break
 
 
@@ -121,7 +129,12 @@ def scorePlayerP(clips,track,score,offset=0,panning=0.5,impulse=None,bal=0.25,ga
             panout = pyo.SPan(rev,outs=2,pan=pan,mul=fade).out()
             time.sleep(dur[n]*scaledur)
             snd.stop()
+            rev.stop()
+            panout.stop()
             if cfg.stop[track]:
+                snd.stop()
+                rev.stop()
+                panout.stop()
                 break
 
 
@@ -142,16 +155,6 @@ def pause(sec,*args):
             try:
                 for i in range(len(args)):
                     if args[i].isPlaying(): args[i].stop()
-            except:
-                pass
-            try:
-                if args[-1].getIsStarted():
-                    args[-1].stop()
-                    args[-1].shutdown()
-                    time.sleep(2)
-                    args[-1].boot()
-                    args[-1].start()
-                    # return(args[-1])
             except:
                 pass
             exit = True
