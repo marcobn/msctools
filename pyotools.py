@@ -37,9 +37,12 @@ def playerP(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,impuls
         for n in range(ntx):
             time.sleep(cfg.TICK)
             if cfg.stop[track]:
-                if snd.isPlaying(): snd.stop()
-                if rev.isPlaying(): rev.stop()
-                if panout.isPlaying(): panout.stop()
+                if panout.isPlaying(): 
+                    panout.setMul(pyo.SigTo(value=0.0, time=3.0, init=gain))
+                    panout.stop(wait=3.0)
+                    rev.stop(wait=3.0)
+                    snd.stop(wait=3.0)
+                    time.sleep(3.0)
                 break
         snd.stop()
 
@@ -91,9 +94,10 @@ def playerP(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,impuls
             rev.stop()
             snd.stop()
             if cfg.stop[track]:
-                panout.stop()
-                rev.stop()
-                snd.stop()
+                panout.setMul(pyo.SigTo(value=0.0, time=3.0, init=1.0))
+                panout.stop(wait=3.0)
+                rev.stop(wait=3.0)
+                snd.stop(wait=3.0)
                 break
 
 
@@ -132,13 +136,14 @@ def scorePlayerP(clips,track,score,offset=0,panning=0.5,impulse=None,bal=0.25,ga
             rev.stop()
             panout.stop()
             if cfg.stop[track]:
-                snd.stop()
-                rev.stop()
-                panout.stop()
+                panout.setMul(pyo.SigTo(value=0.0, time=3.0, init=gain))
+                panout.stop(wait=3.0)
+                snd.stop(wait=3.0)
+                rev.stop(wait=3.0)
                 break
 
 
-def pause(sec,*args):
+def pause(sec,last,*args):
     # function to pause execution while controlling the termination of the whole performance
     ntx = int(sec/cfg.TICK)
     for n in range(ntx):
@@ -154,13 +159,33 @@ def pause(sec,*args):
             time.sleep(1.0)
             try:
                 for i in range(len(args)):
-                    if args[i].isPlaying(): args[i].stop()
+                    if args[i].isPlaying(): 
+                        mulx = [n for n,s in enumerate(args[i].dump().split()) if args[i].dump().split()[n-1] == 'mul:'][0]
+                        mul = float(args[i].dump().split()[mulx])
+                        args[i].setMul(pyo.SigTo(value=0.0, time=3.0, init=mul))
+                        args[i].stop(wait=3.0)
             except:
                 pass
             exit = True
             cfg.MASTER_STOP = False 
             return(exit)
             break
+    if last:
+        print('stopping...')
+        for i in range(len(cfg.stop)):
+            cfg.stop[i] = True
+        time.sleep(1.0)
+        try:
+            for i in range(len(args)):
+                if args[i].isPlaying(): 
+                    mulx = [n for n,s in enumerate(args[i].dump().split()) if args[i].dump().split()[n-1] == 'mul:'][0]
+                    mul = float(args[i].dump().split()[mulx])
+                    args[i].setMul(pyo.SigTo(value=0.0, time=3.0, init=mul))
+                    args[i].stop(wait=3.0)
+        except:
+            pass
+        exit = True
+        return(exit)
     
 
 def importSoundfiles(dirpath='./',filepath='./',mult=0.1,gain=1.0):
