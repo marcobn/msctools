@@ -144,7 +144,7 @@ def scorePlayerP(clips,track,score,offset=0,panning=0.5,impulse=None,bal=0.25,ga
 
 @threading_decorator
 def playerList(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,impulse=None,bal=0.25,
-            seq=seq,*args):
+            external=None,*args):
     ''' 
     Play clips in sequence waiting for next clip - Version for clips in two separate folders
     '''
@@ -168,6 +168,7 @@ def playerList(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,imp
     else:
         assert(len(clips) == 2)
     time.sleep(offset)
+    seq = external
     while True:
         if cfg.stop[track]:
             break
