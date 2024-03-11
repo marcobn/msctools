@@ -3,7 +3,6 @@
 #
 # © 2023 Marco Buongiorno Nardelli
 #
-### Read the samples and create the dictionaries
 
 import glob,time,ast
 import numpy as np
@@ -143,6 +142,78 @@ def scorePlayerP(clips,track,score,offset=0,panning=0.5,impulse=None,bal=0.25,ga
                 break
 
 
+@threading_decorator
+def playerList(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,impulse=None,bal=0.25,
+            seq=seq,*args):
+    ''' 
+    Play clips in sequence waiting for next clip - Version for clips in two separate folders
+    '''
+    def sleep(sec):
+        # internal scope function to pause execution while controlling the termination of the thread
+        ntx = int(sec/cfg.TICK)
+        for n in range(ntx):
+            time.sleep(cfg.TICK)
+            if cfg.stop[track]:
+                if panout.isPlaying(): 
+                    panout.setMul(pyo.SigTo(value=0.0, time=3.0, init=gain))
+                    panout.stop(wait=3.0)
+                    rev.stop(wait=3.0)
+                    snd.stop(wait=3.0)
+                    time.sleep(3.0)
+                break
+        snd.stop()
+
+    if clips == None:
+        return('no clips provided')
+    else:
+        assert(len(clips) == 2)
+    time.sleep(offset)
+    while True:
+        if cfg.stop[track]:
+            break
+        for n in range(len(seq)):
+            # set panning
+            if panning == 'random':
+                pan = np.random.rand()
+            elif isinstance(panning,float) or isinstance(panning,int):
+                pan = panning
+            elif panning == 'LR':
+                pan = pyo.SigTo(value=1.0, time=pyo.sndinfo(clips[n])[1], init=0.0)
+            elif panning == 'RL':
+                pan = pyo.SigTo(value=0.0, time=pyo.sndinfo(clips[n])[1], init=1.0)
+            else:
+                print('panning not defined')
+
+            if seq[n] == ' ':
+                # breaths
+                idx = np.random.randint(len(clips[1]))
+                snd = pyo.SfPlayer(clips[1][idx])
+                cliptime = 2*pyo.sndinfo(clips[1][idx])[1]
+                if impulse != None:
+                    rev = pyo.CvlVerb(snd,impulse[1],bal=bal,mul=2*gain)
+                else:
+                    rev = snd
+            else:
+                # stones
+                snd = pyo.SfPlayer(clips[0][seq[n]])
+                cliptime = pyo.sndinfo(clips[0][seq[n]])[1]
+                if impulse != None:
+                    rev = pyo.CvlVerb(snd,impulse[0],bal=bal,mul=2*gain)
+                else:
+                    rev = snd
+            
+            panout = pyo.SPan(rev,outs=2,pan=pan,mul=gain).out()
+            sleep(cliptime+delay*np.random.rand())
+            panout.stop()
+            rev.stop()
+            snd.stop()
+            if cfg.stop[track]:
+                panout.setMul(pyo.SigTo(value=0.0, time=3.0, init=1.0))
+                panout.stop(wait=3.0)
+                rev.stop(wait=3.0)
+                snd.stop(wait=3.0)
+                break
+
 def pause(sec,last,*args):
     # function to pause execution while controlling the termination of the whole performance
     ntx = int(sec/cfg.TICK)
@@ -153,25 +224,28 @@ def pause(sec,last,*args):
         # f.close()
         exit = False
         if cfg.MASTER_STOP == True:
-            print('stopping...')
+            # print('stopping...')
             for i in range(len(cfg.stop)):
                 cfg.stop[i] = True
             time.sleep(1.0)
-            try:
-                for i in range(len(args)):
+            for i in range(len(args)):
+                try:
                     if args[i].isPlaying(): 
                         mulx = [n for n,s in enumerate(args[i].dump().split()) if args[i].dump().split()[n-1] == 'mul:'][0]
                         mul = float(args[i].dump().split()[mulx])
                         args[i].setMul(pyo.SigTo(value=0.0, time=3.0, init=mul))
                         args[i].stop(wait=3.0)
-            except:
+                except:
+                    print('Exception in pause - hard stop')
+                    args[i].stop()
+
                 pass
             exit = True
             cfg.MASTER_STOP = False 
             return(exit)
             break
     if last:
-        print('stopping...')
+        # print('stopping...')
         for i in range(len(cfg.stop)):
             cfg.stop[i] = True
         time.sleep(1.0)
@@ -180,8 +254,8 @@ def pause(sec,last,*args):
                 if args[i].isPlaying(): 
                     mulx = [n for n,s in enumerate(args[i].dump().split()) if args[i].dump().split()[n-1] == 'mul:'][0]
                     mul = float(args[i].dump().split()[mulx])
-                    args[i].setMul(pyo.SigTo(value=0.0, time=3.0, init=mul))
-                    args[i].stop(wait=3.0)
+                    args[i].setMul(pyo.SigTo(value=0.0, time=6.0, init=mul))
+                    args[i].stop(wait=6.0)
         except:
             pass
         exit = True
