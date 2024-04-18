@@ -196,7 +196,7 @@ def circlesCar(source,aziA,aziB,radius,T,*args):
 		d += sign*ddeg
 		time.sleep (cfg.CLOCK)
 
-def circlesDeg(source,aziA,aziB,T):
+def circlesDeg(source,aziA,aziB,T,*args):
 	narc = np.abs(aziB-aziA)
 	sign = np.sign(aziB-aziA)
 	nt = int(T/cfg.CLOCK)

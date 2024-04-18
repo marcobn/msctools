@@ -41,7 +41,11 @@ def playerP(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,impuls
                     panout.stop(wait=3.0)
                     rev.stop(wait=3.0)
                     snd.stop(wait=3.0)
-                    time.sleep(3.0)
+                    try:
+                        pan.stop(wait=3.0)
+                    except:
+                        pass
+                    #time.sleep(3.0)
                 break
         snd.stop()
 
@@ -92,11 +96,19 @@ def playerP(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,impuls
             panout.stop()
             rev.stop()
             snd.stop()
+            try:
+                pan.stop()
+            except:
+                pass
             if cfg.stop[track]:
                 panout.setMul(pyo.SigTo(value=0.0, time=3.0, init=1.0))
                 panout.stop(wait=3.0)
                 rev.stop(wait=3.0)
                 snd.stop(wait=3.0)
+                try:
+                    pan.stop(wait=3.0)
+                except:
+                    pass
                 break
 
 
@@ -109,6 +121,26 @@ def scorePlayerP(clips,track,score,offset=0,panning=0.5,impulse=None,bal=0.25,ga
     score[1] = durations in seconds (can be scaled with the scaledur parameter)
     '''
     # delay the start of playback - if for any reason is desired
+
+    def sleep(sec):
+        # internal scope function to pause execution while controlling the termination of the thread
+        ntx = int(sec/cfg.TICK)
+        for n in range(ntx):
+            time.sleep(cfg.TICK)
+            if cfg.stop[track]:
+                if panout.isPlaying():
+                    panout.setMul(pyo.SigTo(value=0.0, time=3.0, init=gain))
+                    panout.stop(wait=3.0)
+                    rev.stop(wait=3.0)
+                    snd.stop(wait=3.0)
+                    try:
+                        pan.stop(wait=3.0)
+                    except:
+                        pass
+                    #time.sleep(3.0)
+                break
+        snd.stop()
+
     time.sleep(offset)
     while True:
         if cfg.stop[track]:
@@ -130,7 +162,7 @@ def scorePlayerP(clips,track,score,offset=0,panning=0.5,impulse=None,bal=0.25,ga
             else:
                 rev = snd
             panout = pyo.SPan(rev,outs=2,pan=pan,mul=fade).out()
-            time.sleep(dur[n]*scaledur)
+            sleep(dur[n]*scaledur)
             snd.stop()
             rev.stop()
             panout.stop()
