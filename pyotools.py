@@ -191,7 +191,7 @@ def playerList(clips=None,track=0,delay=0.0,offset=1.0,panning=None,gain=1.0,imp
                     panout.stop(wait=3.0)
                     rev.stop(wait=3.0)
                     snd.stop(wait=3.0)
-                    time.sleep(3.0)
+                    # time.sleep(3.0)
                 break
         snd.stop()
 
@@ -287,8 +287,8 @@ def pause(sec,last,*args):
                 if args[i].isPlaying(): 
                     mulx = [n for n,s in enumerate(args[i].dump().split()) if args[i].dump().split()[n-1] == 'mul:'][0]
                     mul = float(args[i].dump().split()[mulx])
-                    args[i].setMul(pyo.SigTo(value=0.0, time=6.0, init=mul))
-                    args[i].stop(wait=6.0)
+                    args[i].setMul(pyo.SigTo(value=0.0, time=3.0, init=mul))
+                    args[i].stop(wait=3.0)
         except:
             pass
         exit = True
